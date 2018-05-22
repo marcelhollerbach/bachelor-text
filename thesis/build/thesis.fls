@@ -1,4 +1,4 @@
-PWD /home/marcel/git/studarbeit/thesis
+PWD /home/marcel/git/bachelor-text/thesis
 INPUT /usr/share/texmf-dist/web2c/texmf.cnf
 INPUT /home/marcel/.texlive/texmf-var/web2c/pdftex/pdflatex.fmt
 INPUT thesis.tex
