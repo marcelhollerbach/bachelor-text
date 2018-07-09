@@ -1,11 +1,72 @@
 \chapter{Mock up \& Implementation}\label{sec:impl}
 
-\section{bitwidth analysis}
-\subsection{Base functionality}
-\subsection{Difference to VRP}
-\subsection{Applied lattice}
-\subsection{Value prediction}
+\section{Bitwidth analysis}
+The analyze is build as a fixed point iteration using a lattice. After the analysis each operation has a attached tuple $(int,boolean)$. The first value indicates the number of stable digits. The second value indicates if the output of the node is guaranteed to be positive, this flag is only meaningful when the mode of the corresponding node is signed. This second flag is especially useful for conversion optimization, since a conversion from signed to unsigned can be predicted more accurate.
+The lattice is described in \ref{fig:lattice}
+\input{fig/lattice.tex}
 
+As a first step we iterate over every single node and initialize the node with $\top$ and mark them as \textit{dirty}. However, we safe one iteration for constant nodes by calculating them already in the first step. Nodes with the opcodes for \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
+
+The second step consists of recalculating every \textit{dirty} node in the graph. In case that $node.bitwidth > computed\_bitwidth$, the computed bitwidth is memorized as new bitwidth of the node and every successor of the node is marked as dirty. The rules that are used to recalculate the nodes are described in %TODO.
+
+The tuple is defining a range of possible values. The exact range is depending on the mode of the node. Lets take the tuple $(stable\_digits,is\_positive)$
+\begin{center}
+	\begin{tabular}{| l | l | l |}
+		\hline
+		sign & min & max \\ \hline
+		$true$ & $2^{stable\_digits-1}$ & $2^{stable\_digits-1}$-1. \\ \hline
+		$false$ & 0 & $2^{stable\_digits}$-1 \\
+		\hline
+	\end{tabular}
+\end{center}
+
+\subsection{Value prediction}
+In addition to the normal analysis results, the fixed point iteration can calculate upper and lower bounds for true and false blocks of compare nodes that are defining a upper bound.\newline
+A compare node with 
+$\left\{
+\begin{tabular}{l}
+node.relation = $<$ \\
+node.right \textit{typeof} Const
+\end{tabular}
+\right\}
+$
+is defining a upper bound. If this is the case then $\omega := node.left$ and the true block is called $\iota$. A visualization of the definition is given at \ref{fig:compare_upper_bound}.
+\input{fig/upper_bound_cmp.tex}
+\newline
+A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition.
+
+
+\begin{center}
+$\phi(a, b) := \forall X \prec a : X.block = b$ 
+\end{center}
+$\phi$ returns every node that is a direct predecessor of a and located in block b.
+\begin{center}
+$\xi(a) := 
+\left\{
+	\begin{array}{l}
+		a \cap \xi(c)\\ 
+		\emptyset
+	\end{array}
+	\begin{array}{l}
+		, \text{If there is only one not constant dependency \textit{c}} \\ 
+		, \text{otherwise}.
+	\end{array}
+\right.$
+\end{center}
+
+If \textit{a} has only one not constant dependency node c, then $\xi$ returns the element a and $\xi(c)$. Otherwise it returns a empty set.
+
+\paragraph{Upper bounds for block execution}
+The values that are calculated in a node are (even if the fixed point iteration is not stable yet) possible values. The iteration starts at $\top$ and moves into the direction of $\bot$. This means that our range of possible values starts at something like $[0,0]$, moving towards $[n,-n]: n > 0 n <= max(mode)$ with each iteration. For a $\omega$ node this means that there can be a a recalculation, (new and old bitwidth is notated as the value range $\hat{x}$ and $x$) where the compare relation is true for $x$ but not anymore for  $\hat{x}$. This means that $\hat{x}$ is the upper bound for $\iota$. Thus we can insert a confirm node between every node $e \in \phi(\omega, \iota)$ and $\omega$.
+
+\paragraph{Moving upper bounds backwards}
+The confirms we have inserted between $\omega$ and its successors are not the only thing we can insert. We can also insert a confirm node between every $\phi(\xi(\omega), \iota)$. Important here is, the predecessors of $\omega$
+Those confirms are then also inserted above conversation nodes, which is not possible using the normal construct insertion code provided by \libFIRM
+
+
+\subsection{Difference to VRP}
+
+There is already a analysis that is doing something simular, it is called value range propagation. The difference from VRP to BA is that in VRP each iteration is trying to predict the exact range after each operation. While BA tries to predict the unused bits after each operation. This little detail is mainly showing up in speed of the fixed point iteration, VRP converges way slower than BA. Details for this are given in the evaluation chapter.\ref{sec:eval} 
 
 \section{Stable Conversion nodes}
 

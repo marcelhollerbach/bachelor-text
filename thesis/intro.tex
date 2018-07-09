@@ -1,17 +1,17 @@
 \chapter{Introduction}\label{sec:intro}
 
 The problem to solve is called bitwidth analysis.
-The bitwidth with a dataword can be seen as the bits that are actually used in the runtime of the sourcecode.
-Let me give you an example:
+The bitwidth with a data word can be seen as the bits that are actually used in the runtime of the source code. Lets take the following example:
 \begin{lstlisting}[frame=single]
 int arr[4];
 
 for (int i = 0; i < 4; i++) {
-   arr[i] = pow(2, i);
+  int res = (i << 4) + i*i; 
+  arr[i] = res;
 }
 \end{lstlisting}
-the variable i is actually only used for counting from 0 to 3.
-Thus we only actually use two bits. The other bits are unused, and remain 0.
 
-
-%FIXME for loop code with a int
+After running the bitwidth analysis, every operation has a attached information structure which indicates how many bits are actually used by the code. The developed algorithm applied to the the code results in something like this:
+\linebreak
+$ i \in {0..3}$;
+$ res \in {0..90}$; 
