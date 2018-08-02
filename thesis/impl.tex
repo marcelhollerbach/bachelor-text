@@ -21,23 +21,14 @@ The tuple is defining a range of possible values. The exact range is depending o
 \end{center}
 
 \subsection{Value prediction}
-In addition to the normal analysis results, the fixed point iteration can calculate upper and lower bounds for true and false blocks of compare nodes that are defining a upper bound.\newline
-A compare node with 
-$\left\{
-\begin{tabular}{l}
-node.relation = $<$ \\
-node.right \textit{typeof} Const
-\end{tabular}
-\right\}
-$
-is defining a upper bound. If this is the case then $\omega := node.left$ and the true block is called $\iota$. A visualization of the definition is given at \ref{fig:compare_upper_bound}.
+In addition to the normal analysis results, the fixed point iteration can calculate upper and lower bounds for true and false blocks. However, this only works for compare nodes that are defining a upper bound. \newline
+A compare node is defining a upper bound if $node.relation = <$ and the node at $node.right$ is constant. If this is the case then $\omega := node.left$ and the true block is called $\iota$. A visualization of the definition is given at \ref{fig:compare_upper_bound}.
 \input{fig/upper_bound_cmp.tex}
 \newline
-A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition.
-
-
+A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition. For example with switching the right and left nodes, while turning the relation. \newline
+For later usage we define the following 
 \begin{center}
-$\phi(a, b) := \forall X \prec a : X.block = b$ 
+$\phi(a, b) := \forall X \prec a \wedge X.block = b$ 
 \end{center}
 $\phi$ returns every node that is a direct predecessor of a and located in block b.
 \begin{center}
@@ -66,9 +57,16 @@ Those confirms are then also inserted above conversation nodes, which is not pos
 
 \subsection{Difference to VRP}
 
-There is already a analysis that is doing something simular, it is called value range propagation. The difference from VRP to BA is that in VRP each iteration is trying to predict the exact range after each operation. While BA tries to predict the unused bits after each operation. This little detail is mainly showing up in speed of the fixed point iteration, VRP converges way slower than BA. Details for this are given in the evaluation chapter.\ref{sec:eval} 
+There is already a analysis that is doing something similar, it is called value range propagation. The difference from VRP to BA is that in VRP each iteration is trying to predict the exact range after each operation. While BA tries to predict the unused bits after each operation. This little detail is mainly showing up in speed of the fixed point iteration, VRP converges way slower than BA. Details for this are given in the evaluation chapter.\ref{sec:eval} 
 
 \section{Stable Conversion nodes}
+A conversion of a data word can result in two different results. First the bitwise representation stays the same. Second, the bitwise representation also gets mapped.
+We call the first case \textit{Stable Conversion node}.
+
+\paragraph{Finding stable conversion nodes}
+Stable conversion nodes can be found using the bitwidth analysis. As described before, the analysis maps every node in the tree to a tuple. First number is the number of stable bits, which describes a upper bound for the numbers that will be written into the data word. The second number is a boolean flag and indicates if the number is going to be greater than 0 or not. If we now can see that the number range from the successor is the same as the one of the conversion node, then we can declare the conversion as stable.
+
+
 
 \section{Compare-Conversion optimization}
 \subsection{When to remove those nodes}
