@@ -32,27 +32,27 @@ $
 
 As a first step, we iterate over every single node and initialize the node with $\top$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
 
-The second step consists of recalculating every \textit{dirty} node in the graph. if $node.bitwidth < computed\_bitwidth$, the computed bitwidth is memorized as new bitwidth of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in REFERENCE TO TABLE %TODO.
+The second step consists of recalculating every \textit{dirty} node in the graph. if $node.bitwidth < computed\_bitwidth$, the computed bitwidth is memorized as the new bitwidth of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in REFERENCE TO TABLE %TODO.
 
-\subsection{Value prediction}
+\subsection{Definition: Value prediction}
 In addition to the normal analysis results, the fixed point iteration can insert additional 
 confirm nodes. Those confirm nodes help making the analysis more accurate.
 First of all we need a few definitions for easier understanding:
 
-\subparagraph{True / false Blocks}
+\subparagraph{Definition: True / false Blocks}
 %TODO
 
-\subparagraph{Upper bounds}
+\subparagraph{Definition: Upper bounds}
 \input{fig/upper_bound_cmp.tex}
 A compare node is defining a upper bound if $node.relation = <$ and the node at $node.right$ is constant. For nodes where this is given we define
 \emph{$\omega := node.left$} and the \emph{true block is called $\iota$}. A visualization of the definition is given at \ref{fig:compare_upper_bound}.
 A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition. For example with switching the right and left nodes, while turning the relation.
-\subparagraph{Predecessor in a certain block}
+\subparagraph{Definition: Predecessor in a certain block}
 \begin{center}
 $\phi(a, b) := \forall X \prec a \wedge X.block = b$ 
 \end{center}
 $\phi$ returns every node that is a direct predecessor of a and located in block b.
-\subparagraph{Constant dependencies}
+\subparagraph{Definition: Constant dependencies}
 \begin{center}
 $\xi(a) := 
 \left\{
