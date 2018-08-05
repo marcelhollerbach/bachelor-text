@@ -1,7 +1,7 @@
 \chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analysis is a data flow analysis. The analysis attaches a $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful is the node has a integer style mode. We will reference the first value as \textit{stable bits} and the second bit as \textit{is positive}.
+The analysis is a data flow analysis. The analysis attaches a $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful is the node has a integer style mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}.
 
 \paragraph{Bit representation}
 The stable bits are indicating how many bits are stable, and therefore not used.
@@ -35,16 +35,24 @@ As a first step, we iterate over every single node and initialize the node with 
 The second step consists of recalculating every \textit{dirty} node in the graph. if $node.bitwidth < computed\_bitwidth$, the computed bitwidth is memorized as new bitwidth of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in REFERENCE TO TABLE %TODO.
 
 \subsection{Value prediction}
-In addition to the normal analysis results, the fixed point iteration can calculate upper and lower bounds for true and false blocks. However, this only works for compare nodes that are defining a upper bound. \newline
-A compare node is defining a upper bound if $node.relation = <$ and the node at $node.right$ is constant. If this is the case then $\omega := node.left$ and the true block is called $\iota$. A visualization of the definition is given at \ref{fig:compare_upper_bound}.
+In addition to the normal analysis results, the fixed point iteration can insert additional 
+confirm nodes. Those confirm nodes help making the analysis more accurate.
+First of all we need a few definitions for easier understanding:
+
+\subparagraph{True / false Blocks}
+%TODO
+
+\subparagraph{Upper bounds}
 \input{fig/upper_bound_cmp.tex}
-\newline
-A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition. For example with switching the right and left nodes, while turning the relation. \newline
-For later usage we define the following 
+A compare node is defining a upper bound if $node.relation = <$ and the node at $node.right$ is constant. For nodes where this is given we define
+\emph{$\omega := node.left$} and the \emph{true block is called $\iota$}. A visualization of the definition is given at \ref{fig:compare_upper_bound}.
+A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition. For example with switching the right and left nodes, while turning the relation.
+\subparagraph{Predecessor in a certain block}
 \begin{center}
 $\phi(a, b) := \forall X \prec a \wedge X.block = b$ 
 \end{center}
 $\phi$ returns every node that is a direct predecessor of a and located in block b.
+\subparagraph{Constant dependencies}
 \begin{center}
 $\xi(a) := 
 \left\{
