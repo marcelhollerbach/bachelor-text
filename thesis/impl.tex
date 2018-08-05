@@ -9,7 +9,7 @@ The boolean flag is especially useful for conversion optimization. A conversion 
 The lattice is described in \ref{fig:lattice}
 \input{fig/lattice.tex}
 
-As a first step we iterate over every single node and initialize the node with $\top$ and mark them as \textit{dirty}. However, we safe one iteration for constant nodes by calculating them already in the first step. Nodes with the opcodes for \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
+As a first step we iterate over every single node and initialize the node with $\top$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
 
 The second step consists of recalculating every \textit{dirty} node in the graph. In case that $node.bitwidth > computed\_bitwidth$, the computed bitwidth is memorized as new bitwidth of the node and every successor of the node is marked as dirty. The rules that are used to recalculate the nodes are described in %TODO.
 
