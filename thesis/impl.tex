@@ -1,7 +1,7 @@
 \chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analysis is a data flow analysis. The analysis attaches a $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful is the node has a integer style mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}.
+The analysis is a data flow analysis. The analysis attaches a $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful is the node has a integer style mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}. Since this is a data flow analysis that is build on a iterative approach we might want to address the current tuple of a node x, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
 
 \paragraph{Bit representation}
 The stable bits are indicating how many bits are stable, and therefore not used.
@@ -75,12 +75,13 @@ $\xi(a) :=
 If \textit{a} has only one not constant operant c, then $\xi$ returns the element a and $\xi(c)$. Otherwise it returns a empty set.
 
 \paragraph{Upper bounds for block execution}
-The values that are calculated in a node are (even if the fixed point iteration is not stable yet) possible values. The iteration starts at $\top$ and moves into the direction of $\bot$. This means that our range of possible values starts at something like $[0,0]$, moving towards $[n,-n]: n > 0 n <= max(mode)$ with each iteration. For a $\omega$ node this means that there can be a a recalculation, (new and old bitwidth is notated as the value range $\hat{x}$ and $x$) where the compare relation is true for $x$ but not anymore for  $\hat{x}$. This means that $\hat{x}$ is the upper bound for $\iota$. Thus we can insert a confirm node between every node $e \in \phi(\omega, \iota)$ and $\omega$.
+The values that are calculated in a node are (even if the fixed point iteration is not stable yet) possible values. The iteration starts at $\bot$ and moves into the direction of $\top$. 
+%This means for a node \textit{n} our range of possible values starts at something like $[0,0]$, moving towards $[max _{bitwidth}(n), min _{bitwidth}(n)]$ with each iteration.  %CORRECTION LINE
+We now evaluate a upper bound compare node, every time the first operand changes. In the beginning we can say that that with those possible values, each time the true-block will be executed. However, if $max _{bitwidth}(n)$ grows enough to get bigger than the second operand or the compare node, then we can say that we have found a upper bound for the execution of the true-block. Which is $max _{bitwidth}(n)$ in the current state. Thus we can insert a confirm node between every node $e \in \kappa(i, j)$ and $i$. Where $i$ is the first operand and j is the true block.
 
-\paragraph{Moving upper bounds backwards}
-The confirms we have inserted between $\omega$ and its successors are not the only thing we can insert. We can also insert a confirm node between every $\phi(\xi(\omega), \iota)$. Important here is, the predecessors of $\omega$
-Those confirms are then also inserted above conversation nodes, which is not possible using the normal construct insertion code provided by \libFIRM
-
+\paragraph{Extended confirm insertion}
+The confirm nodes that we have inserted in the paragraph before can also be transported backwards.
+With $\xi(i)$ we can get a set of nodes, where the current state in the analysis is only depending on one node. Thus we can say that the state of every node from $\xi(i)$ will not change as long as the most upper element in the tree structure does not change. Which means that we can for every $e \in \xi(i)$ and $g \in \kappa(e, j)$ insert a confirm node between $(e,g)$
 
 \subsection{Difference to VRP}
 
