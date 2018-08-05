@@ -1,28 +1,38 @@
 \chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analysis is built as a fixed point iteration using a lattice. After the analysis each operation has a $(int,boolean)$ tuple attached. 
-The first value indicates the number of stable digits. 
-The second value indicates if the output of the node is guaranteed to be positive. 
-This flag is only meaningful when the mode of the corresponding node is signed. 
-The boolean flag is especially useful for conversion optimization. A conversion from signed to unsigned can be analyzed more accurately. 
-The lattice is described in \ref{fig:lattice}
+The analysis is a data flow analysis. The analysis attaches a $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful is the node has a integer style mode. We will reference the first value as \textit{stable bits} and the second bit as \textit{is positive}.
+
+\paragraph{Bit representation}
+The stable bits are indicating how many bits are stable, and therefore not used.
+The second value of the tuple indicates if the value will ever reach negative numbers or not. And thus indicate at least one stable bit at the highest position. However, the second value is only meaningful for modes that allow signs.
+
+\paragraph{Range representation}
+There is also a second way of interpreting the two values. The stable bits can define a minimum and maximum range. The maximum number is reached if the stable bits are just always zero. If the mode is signed and the node is not positive, then the minimum number is reached by assuming all stable bits are one. Otherwise the minimum range is 0.
+
+$
+max_{bitwidth}(x)=
+\left\{
+\begin{array}{l}2^{stable\_digits-1}-1\\2^{stable\_digits}-1\end{array}
+\begin{array}{l} {mode.signed} \\ {Otherwise} \end{array}
+\right.
+$
+
+$
+min_{bitwidth}(x)=
+\left\{
+\begin{array}{l}2^{stable\_digits-1}\\0\end{array}
+\begin{array}{l} {mode.signed and is_positive} \\ {Otherwise} \end{array}
+\right.
+$
+
 \input{fig/lattice.tex}
+
+\paragraph{Analysis} The analysis works as a fixed point iteration. Therefore we use  \ref{fig:lattice} as lattice. The values of the lattice are representing the tuples from the analysis.
 
 As a first step, we iterate over every single node and initialize the node with $\top$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
 
 The second step consists of recalculating every \textit{dirty} node in the graph. if $node.bitwidth < computed\_bitwidth$, the computed bitwidth is memorized as new bitwidth of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in REFERENCE TO TABLE %TODO.
-
-The tuple is defining a range of possible values. The exact range is depending on the mode of the node. Lets take the tuple $(stable\_digits,is\_positive)$
-\begin{center}
-	\begin{tabular}{| l | l | l |}
-		\hline
-		sign & min & max \\ \hline
-		$true$ & $2^{stable\_digits-1}$ & $2^{stable\_digits-1}$-1. \\ \hline
-		$false$ & 0 & $2^{stable\_digits}$-1 \\
-		\hline
-	\end{tabular}
-\end{center}
 
 \subsection{Value prediction}
 In addition to the normal analysis results, the fixed point iteration can calculate upper and lower bounds for true and false blocks. However, this only works for compare nodes that are defining a upper bound. \newline
