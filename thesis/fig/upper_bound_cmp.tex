@@ -1,0 +1,43 @@
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[scale=1.0, transform shape]
+	\node[graph]{
+		\begin{tikzpicture}[remember picture]
+		\node[block] (startblock) {
+			\begin{tikzpicture}
+			\node[firm]    (predessors)       at (-1,3) {$\omega$};
+			\node[const]    (c2)       at ( 1,3) {Const X};
+			\node[firm]    (cmp)        at ( 0,2) {Cmp};
+			\node[control] (cond)       at ( 0,1) {Cond};
+			\node[control] (false)      at (-1,0) {False};
+			\node[control] (true)       at ( 1,0) {True};
+			
+			\draw[dataDependency]    (cmp.120)     -- ++(0,0.1) -| (predessors);
+			\draw[dataDependency]    (cmp.60)      -- ++(0,0.1) -| (c2);
+			\draw[dataDependency]    (cond)        --              (cmp);
+			\draw[controlDependency] (false.north) -- ++(0,0.1) -| (cond.240);
+			\draw[controlDependency] (true.north)  -- ++(0,0.1) -| (cond.300);
+			\end{tikzpicture}
+		};
+		\node[block, anchor=north east] (left) at ($(startblock.south) + (-1,-0.5)$) {
+			\begin{tikzpicture}
+			\node[const] (c0) at (0,0) {$\ominus$};
+			\end{tikzpicture}
+		};
+		\node[block, anchor=north west] (right) at ($(startblock.south) + (1,-0.5)$) {
+			\begin{tikzpicture}
+			\node[const] (c1) at (0,0) {$\iota$};
+			\end{tikzpicture}
+		};		
+		% Control dependencies
+		\begin{scope}[every path/.style = {controlDependency}]
+			\draw (left.north)  -- ++(0,0.2) -| (false);
+			\draw (right.north) -- ++(0,0.2) -| (true);
+		\end{scope}
+		
+	\end{tikzpicture}
+};
+\end{tikzpicture}
+\caption{The definition of a upper bound compare node}
+\label{fig:compare_upper_bound}
+\end{figure}
