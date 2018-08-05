@@ -71,11 +71,11 @@ We call the first case \textit{Stable Conversion node}.
 Stable conversion nodes can be found using the bitwidth analysis. As described before, the analysis maps every node in the tree to a tuple. First number is the number of stable bits, which describes a upper bound for the numbers that will be written into the data word. The second number is a boolean flag and indicates if the number is going to be greater than 0 or not. If we now can see that the number range from the successor is the same as the one of the conversion node, then we can declare the conversion as stable.
 
 \paragraph{Removing conversion nodes}
-In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analysis. The confirm insertion algorithm of \libFIRM is searching for assertions that can be made based on looking at cmp nodes. This works quite well. However, a construction like TODO does not work.
+In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analysis. The confirm insertion algorithm of \libFIRM is searching for assertions that can be made based on looking at compare nodes. This works quite well. However, a construction like TODO does not work.
 %FIXME diagram 
 %FIXME reason
-After removing the conversion node, the analysis can find a assertion based on the Cmp node. This also helps the branch prediction, dead code elimination. \newline
-However, for really removing the conversion nodes, we need to find situations where we can eliminate the conversion node. One was already seen in the example. A Compare node with a constant node as second operand. Another situation is a arithmetical operation with a constant and conversion node as operands.
+After removing the conversion node, the analysis can find a assertion based on the compare node. This also helps the branch prediction, dead code elimination. \newline
+However, for really removing the conversion nodes, we need to find situations where we can eliminate the conversion node. One was already seen in the example. A compare node with a constant node as second operand. Another situation is a arithmetical operation with a constant and conversion node as operands.
 
 \paragraph{Compare-Conversion optimization}
 %FIXME diagram
