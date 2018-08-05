@@ -34,30 +34,35 @@ As a first step, we iterate over every single node and initialize the node with 
 
 The second step consists of recalculating every \textit{dirty} node in the graph. if $node.bitwidth < computed\_bitwidth$, the computed bitwidth is memorized as the new bitwidth of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in REFERENCE TO TABLE %TODO.
 
-\subsection{Definition: Value prediction}
+\subsection{Value prediction}
 In addition to the normal analysis results, the fixed point iteration can insert additional 
 confirm nodes. Those confirm nodes help making the analysis more accurate.
 First of all we need a few definitions for easier understanding:
 
 \subparagraph{Definition: True / false Blocks}
-%TODO
+A compare node in \libFIRM has always a relation, 2 operands and 2 blocks. One of the blocks is executed depending on if the criteria was meet or not. The block that is executed when it was meet, is called \emph{true-block} the other block is called \emph{false-block}. The structure is visualized in \ref{fig:compare_upper_bound}
+\input{fig/upper_bound_cmp.tex}
 
 \subparagraph{Definition: Upper bounds}
-\input{fig/upper_bound_cmp.tex}
-A compare node is defining a upper bound if $node.relation = <$ and the node at $node.right$ is constant. For nodes where this is given we define
-\emph{$\omega := node.left$} and the \emph{true block is called $\iota$}. A visualization of the definition is given at \ref{fig:compare_upper_bound}.
-A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition. For example with switching the right and left nodes, while turning the relation.
+A node defines a upper bound if the relation is < and the second operand is constant.\newline
+A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition. For example by switching the right and left nodes, while turning the relation.
+
 \subparagraph{Definition: Predecessor in a certain block}
+In the detection described later, we often need to find a predecessor that is placed in a certain block. Therefore we define:
 \begin{center}
-$\phi(a, b) := \forall X \prec a \wedge X.block = b$ 
+$\kappa(a, b) := \forall X \prec a \wedge X.block = b$ 
 \end{center}
-$\phi$ returns every node that is a direct predecessor of a and located in block b.
+
+It will return every node that is located in \textit{b} and is a predecessor of \textit{a}.
+
 \subparagraph{Definition: Constant dependencies}
+While looking at C code we often see that add and mul nodes are used for calculating array addresses or addresses for struct access. Therefore one operant of the arithmetical operations is often constant. Knowing this a structure like FIXME %TODO
+can be created. We define $\xi$ to explore the whole tree of one constant one not constant operants, and return us every node that was not constant.
 \begin{center}
 $\xi(a) := 
 \left\{
 	\begin{array}{l}
-		a \cap \xi(c)\\ 
+		a \cup \xi(c)\\ 
 		\emptyset
 	\end{array}
 	\begin{array}{l}
@@ -67,7 +72,7 @@ $\xi(a) :=
 \right.$
 \end{center}
 
-If \textit{a} has only one not constant dependency node c, then $\xi$ returns the element a and $\xi(c)$. Otherwise it returns a empty set.
+If \textit{a} has only one not constant operant c, then $\xi$ returns the element a and $\xi(c)$. Otherwise it returns a empty set.
 
 \paragraph{Upper bounds for block execution}
 The values that are calculated in a node are (even if the fixed point iteration is not stable yet) possible values. The iteration starts at $\top$ and moves into the direction of $\bot$. This means that our range of possible values starts at something like $[0,0]$, moving towards $[n,-n]: n > 0 n <= max(mode)$ with each iteration. For a $\omega$ node this means that there can be a a recalculation, (new and old bitwidth is notated as the value range $\hat{x}$ and $x$) where the compare relation is true for $x$ but not anymore for  $\hat{x}$. This means that $\hat{x}$ is the upper bound for $\iota$. Thus we can insert a confirm node between every node $e \in \phi(\omega, \iota)$ and $\omega$.
