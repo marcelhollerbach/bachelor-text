@@ -1,7 +1,11 @@
-\chapter{Mock up \& Implementation}\label{sec:impl}
+\chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analyze is build as a fixed point iteration using a lattice. After the analysis each operation has a attached tuple $(int,boolean)$. The first value indicates the number of stable digits. The second value indicates if the output of the node is guaranteed to be positive, this flag is only meaningful when the mode of the corresponding node is signed. This second flag is especially useful for conversion optimization, since a conversion from signed to unsigned can be predicted more accurate.
+The analysis is built as a fixed point iteration using a lattice. After the analysis each operation has a $(int,boolean)$ tuple attached. 
+The first value indicates the number of stable digits. 
+The second value indicates if the output of the node is guaranteed to be positive. 
+This flag is only meaningful when the mode of the corresponding node is signed. 
+The boolean flag is especially useful for conversion optimization. A conversion from signed to unsigned can be analyzed more accurately. 
 The lattice is described in \ref{fig:lattice}
 \input{fig/lattice.tex}
 
@@ -28,6 +32,7 @@ A compare node is defining a upper bound if $node.relation = <$ and the node at 
 A compare node is also defining a upper bound if it can be transformed into a construct that matches the definition. For example with switching the right and left nodes, while turning the relation. \newline
 For later usage we define the following 
 \begin{center}
+	%arrow!!!
 $\phi(a, b) := \forall X \prec a \wedge X.block = b$ 
 \end{center}
 $\phi$ returns every node that is a direct predecessor of a and located in block b.
@@ -35,6 +40,7 @@ $\phi$ returns every node that is a direct predecessor of a and located in block
 $\xi(a) := 
 \left\{
 	\begin{array}{l}
+		%vereinigung
 		a \cap \xi(c)\\ 
 		\emptyset
 	\end{array}
@@ -57,7 +63,7 @@ Those confirms are then also inserted above conversation nodes, which is not pos
 
 \subsection{Difference to VRP}
 
-There is already a analysis that is doing something similar, it is called value range propagation. The difference from VRP to BA is that in VRP each iteration is trying to predict the exact range after each operation. While BA tries to predict the unused bits after each operation. This little detail is mainly showing up in speed of the fixed point iteration, VRP converges way slower than BA. Details for this are given in the evaluation chapter.\ref{sec:eval} 
+There is already a analysis that is doing something similar, it is called value range propagation. The difference from VRP to BA is that in VRP each iteration is trying to predict the exact range after each operation. While BA tries to predict the unused bits after each operation. This little detail is mainly showing up in speed of the fixed point iteration, VRP converges way slower than BA. Details for this are given in the evaluation chapter \ref{sec:eval}.
 
 \section{Stable Conversion nodes}
 A conversion of a data word can result in two different results. First the bitwise representation stays the same. Second, the bitwise representation also gets mapped.
@@ -67,11 +73,11 @@ We call the first case \textit{Stable Conversion node}.
 Stable conversion nodes can be found using the bitwidth analysis. As described before, the analysis maps every node in the tree to a tuple. First number is the number of stable bits, which describes a upper bound for the numbers that will be written into the data word. The second number is a boolean flag and indicates if the number is going to be greater than 0 or not. If we now can see that the number range from the successor is the same as the one of the conversion node, then we can declare the conversion as stable.
 
 \paragraph{Removing conversion nodes}
-In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analysis. The confirm insertion algorithm of \libFIRM is searching for assertions that can be made based on looking at cmp nodes. This works quite well. However, a construction like TODO does not work.
+In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analysis. The confirm insertion algorithm of \libFIRM is searching for assertions that can be made based on looking at compare nodes. This works quite well. However, a construction like TODO does not work.
 %FIXME diagram 
 %FIXME reason
-After removing the conversion node, the analysis can find a assertion based on the Cmp node. This also helps the branch prediction, dead code elimination. \newline
-However, for really removing the conversion nodes, we need to find situations where we can eliminate the conversion node. One was already seen in the example. A Compare node with a constant node as second operand. Another situation is a arithmetical operation with a constant and conversion node as operands.
+After removing the conversion node, the analysis can find a assertion based on the compare node. This also helps the branch prediction, dead code elimination. \newline
+However, for really removing the conversion nodes, we need to find situations where we can eliminate the conversion node. One was already seen in the example. A compare node with a constant node as second operand. Another situation is a arithmetical operation with a constant and conversion node as operands.
 
 \paragraph{Compare-Conversion optimization}
 %FIXME diagram
