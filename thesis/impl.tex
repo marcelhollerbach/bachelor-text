@@ -1,7 +1,11 @@
-\chapter{Mock up \& Implementation}\label{sec:impl}
+\chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analyze is build as a fixed point iteration using a lattice. After the analysis each operation has a attached tuple $(int,boolean)$. The first value indicates the number of stable digits. The second value indicates if the output of the node is guaranteed to be positive, this flag is only meaningful when the mode of the corresponding node is signed. This second flag is especially useful for conversion optimization, since a conversion from signed to unsigned can be predicted more accurate.
+The analysis is built as a fixed point iteration using a lattice. After the analysis each operation has a $(int,boolean)$ tuple attached. 
+The first value indicates the number of stable digits. 
+The second value indicates if the output of the node is guaranteed to be positive. 
+This flag is only meaningful when the mode of the corresponding node is signed. 
+The boolean flag is especially useful for conversion optimization. A conversion from signed to unsigned can be analyzed more accurately. 
 The lattice is described in \ref{fig:lattice}
 \input{fig/lattice.tex}
 
