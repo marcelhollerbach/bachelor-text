@@ -50,13 +50,13 @@ A compare node is also defining a upper bound if it can be transformed into a co
 \subparagraph{Definition: Predecessor in a certain block}
 In the detection described later, we often need to find a predecessor that is placed in a certain block. Therefore we define:
 \begin{center}
-$\kappa(a, b) := \forall X \prec a \wedge X.block = b$ 
+$\kappa(a, b) := \{X| X \leftarrow a \wedge X.block = b \}$ 
 \end{center}
 
 It will return every node that is located in \textit{b} and is a predecessor of \textit{a}.
 
 \subparagraph{Definition: Constant dependencies}
-While looking at C code we often see that add and mul nodes are used for calculating array addresses or addresses for struct access. Therefore one operant of the arithmetical operations is often constant. Knowing this a structure like FIXME %TODO
+While looking at C code we often see that addition and multiplication nodes are used for calculating array addresses or addresses for structure access. Therefore one operant of the arithmetical operations is often constant. Knowing this, a structure like FIXME %TODO
 can be created. We define $\xi$ to explore the whole tree of one constant one not constant operants, and return us every node that was not constant.
 \begin{center}
 $\xi(a) := 
@@ -88,20 +88,24 @@ With $\xi(i)$ we can get a set of nodes, where the current state in the analysis
 There is already a analysis that is doing something similar, it is called value range propagation. The difference from VRP to BA is that in VRP each iteration is trying to predict the exact range after each operation. While BA tries to predict the unused bits after each operation. This little detail is mainly showing up in speed of the fixed point iteration, VRP converges way slower than BA. Details for this are given in the evaluation chapter \ref{sec:eval}.
 
 \section{Stable Conversion nodes}
-A conversion of a data word can result in two different results. First the bitwise representation stays the same. Second, the bitwise representation also gets mapped.
-We call the first case \textit{Stable Conversion node}.
+In libfirm a conversion node can be used to convert one dataword from one mode to another. This type of node has one operand. Such a conversion has two effects. The bitwise representation stays the same. Or the bitwise representation changes, due to the numerical representation changes. We call the first case \textit{Stable Conversion node}.  A example for a unstable conversion node may look like $(unsigned)((int)-10)$. A stable conversion node might look like $(unsigned)(int)10$.
 
 \paragraph{Finding stable conversion nodes}
-Stable conversion nodes can be found using the bitwidth analysis. As described before, the analysis maps every node in the tree to a tuple. First number is the number of stable bits, which describes a upper bound for the numbers that will be written into the data word. The second number is a boolean flag and indicates if the number is going to be greater than 0 or not. If we now can see that the number range from the successor is the same as the one of the conversion node, then we can declare the conversion as stable.
+Such stable conversion nodes can be found using the bitwidth analysis. We compare the range from the operand with the range from the conversion node itself. If the ranges are the same, then we know that the conversion is stable.
 
 \paragraph{Removing conversion nodes}
-In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analysis. The confirm insertion algorithm of \libFIRM is searching for assertions that can be made based on looking at compare nodes. This works quite well. However, a construction like TODO does not work.
+In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analyses. The confirm insertion algorithm of libfirm is searching for assertions that can be made based on looking at compare nodes. This works quite well. However, the following construction does not work:
 %FIXME diagram 
-%FIXME reason
-After removing the conversion node, the analysis can find a assertion based on the compare node. This also helps the branch prediction, dead code elimination. \newline
-However, for really removing the conversion nodes, we need to find situations where we can eliminate the conversion node. One was already seen in the example. A compare node with a constant node as second operand. Another situation is a arithmetical operation with a constant and conversion node as operands.
+
+The insertion code could only insert a Confirm between the Compare and the conversion. However, it would need to be behind the conversion node, in order to help the rest of the code, since other nodes will likely depend on the operand of the conversion node and not on the conversion node itself. 
+After removing the conversion node, the analysis can find a assertion based on the compare node. This also helps the branch prediction and dead code elimination.
+
+However, for really removing the conversion nodes, we need to find situations where we can eliminate the conversion node. We have already seen the example with a compare node. Additionally we can do the same with a arithmetical operation.
 
 \paragraph{Compare-Conversion optimization}
-%FIXME diagram
+There is the rule in libfirm that the two operands of a compare node are forced to have the same mode. This means, when we remove the conversion node, we also need to adjust the mode of the second operand. This is not easily possible for something that is not a constant, thus we confine for now that the two operands need to be a conversion and a constant node.
+With the assertion that our second operand is a constant, we can simply adjust its mode. And remove the conversion. 
+
 \paragraph{Arithmetical-Conversion optimization}
-%FIXME diagram
+A other situation where we can optimize the conversion nodes are arithmetical operations, where one operand is again constant. In this case we don't really remove the conversion node, we more drag it through the arithmetical operation, and place it afterwards. We do this and hope that we can remove it with a compare conversion optimization after that.
+Such a construct might look like ... . After we adjusted the mode of the constant we can move the conversion from the operand of the arithmetical operation to the end.
