@@ -32,7 +32,7 @@ $
 
 As a first step, we iterate over every single node and initialize the node with $\top$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
 
-The second step consists of recalculating every \textit{dirty} node in the graph. if the stable bits of $x$ are greater than those from $\hat{x}$, then the new value is memorized as $\hat{x}$ of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in REFERENCE TO TABLE %TODO.
+The second step consists of recalculating every \textit{dirty} node in the graph. if the stable bits of $x$ are greater than those from $\hat{x}$, then the new value is memorized as $\hat{x}$ of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in \ref{table_of_rules}.
 
 \subsection{Value prediction}
 In addition to the normal analysis results, the fixed point iteration can insert additional 
