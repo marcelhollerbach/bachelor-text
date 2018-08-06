@@ -56,8 +56,9 @@ $\kappa(a, b) := \{X| X \leftarrow a \wedge X.block = b \}$
 It will return every node that is located in \textit{b} and is a predecessor of \textit{a}.
 
 \subparagraph{Definition: Constant dependencies}
-While looking at C code we often see that addition and multiplication nodes are used for calculating array addresses or addresses for structure access. Therefore one operant of the arithmetical operations is often constant. Knowing this, a structure like FIXME %TODO
-can be created. We define $\xi$ to explore the whole tree of one constant one not constant operants, and return us every node that was not constant.
+\input{fig/def_xi.tex}
+While looking at C code we often see that addition and multiplication nodes are used for calculating array addresses or addresses for structure access. Therefore one operant of the arithmetical operations is often constant. A example for this can be found at \ref{fig:def:xi}.
+We define $\xi$ to explore the whole tree of one constant one not constant operants, and return us every node that was not constant.
 \begin{center}
 $\xi(a) := 
 \left\{
@@ -72,7 +73,7 @@ $\xi(a) :=
 \right.$
 \end{center}
 
-If \textit{a} has only one not constant operant c, then $\xi$ returns the element a and $\xi(c)$. Otherwise it returns a empty set.
+If \textit{a} has only one not constant operant c, then $\xi$ returns the element a and $\xi(c)$. Otherwise it returns a empty set. For the example the highlighted nodes will be part of $\xi(Y)$.
 
 \paragraph{Upper bounds for block execution}
 The values that are calculated in a node are (even if the fixed point iteration is not stable yet) possible values. The iteration starts at $\bot$ and moves into the direction of $\top$. 
@@ -94,9 +95,8 @@ In libfirm a conversion node can be used to convert one dataword from one mode t
 Such stable conversion nodes can be found using the bitwidth analysis. We compare the range from the operand with the range from the conversion node itself. If the ranges are the same, then we know that the conversion is stable.
 
 \paragraph{Removing conversion nodes}
-In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analyses. The confirm insertion algorithm of libfirm is searching for assertions that can be made based on looking at compare nodes. This works quite well. However, the following construction does not work:
-%FIXME diagram 
-
+\input{fig/conv_opt.tex}
+In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analyses. The confirm insertion algorithm of libfirm is searching for assertions that can be made based on looking at compare nodes. This works quite well. However, the example at \ref{fig:example:conversion_opt} does not work
 The insertion code could only insert a Confirm between the Compare and the conversion. However, it would need to be behind the conversion node, in order to help the rest of the code, since other nodes will likely depend on the operand of the conversion node and not on the conversion node itself. 
 After removing the conversion node, the analysis can find a assertion based on the compare node. This also helps the branch prediction and dead code elimination.
 
@@ -107,5 +107,6 @@ There is the rule in libfirm that the two operands of a compare node are forced 
 With the assertion that our second operand is a constant, we can simply adjust its mode. And remove the conversion. 
 
 \paragraph{Arithmetical-Conversion optimization}
+\input{fig/arith_conv.tex}
 A other situation where we can optimize the conversion nodes are arithmetical operations, where one operand is again constant. In this case we don't really remove the conversion node, we more drag it through the arithmetical operation, and place it afterwards. We do this and hope that we can remove it with a compare conversion optimization after that.
-Such a construct might look like ... . After we adjusted the mode of the constant we can move the conversion from the operand of the arithmetical operation to the end.
+Such a construct might look like \ref{fig:example:arithmetical_opt} . After we adjusted the mode of the constant we can move the conversion from the operand of the arithmetical operation to the end.
