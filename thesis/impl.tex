@@ -84,10 +84,6 @@ We now evaluate a upper bound compare node, every time the first operand changes
 The confirm nodes that we have inserted in the paragraph before can also be transported backwards.
 With $\xi(i)$ we can get a set of nodes, where the current state in the analysis is only depending on one node. Thus we can say that the state of every node from $\xi(i)$ will not change as long as the most upper element in the tree structure does not change. Which means that we can for every $e \in \xi(i)$ and $g \in \kappa(e, j)$ insert a confirm node between $(e,g)$
 
-\subsection{Difference to VRP}
-
-There is already a analysis that is doing something similar, it is called value range propagation. The difference from VRP to BA is that in VRP each iteration is trying to predict the exact range after each operation. While BA tries to predict the unused bits after each operation. This little detail is mainly showing up in speed of the fixed point iteration, VRP converges way slower than BA. Details for this are given in the evaluation chapter \ref{sec:eval}.
-
 \section{Stable Conversion nodes}
 In libfirm a conversion node can be used to convert one dataword from one mode to another. This type of node has one operand. Such a conversion has two effects. The bitwise representation stays the same. Or the bitwise representation changes, due to the numerical representation changes. We call the first case \textit{Stable Conversion node}.  A example for a unstable conversion node may look like $(unsigned)((int)-10)$. A stable conversion node might look like $(unsigned)(int)10$.
 
@@ -110,3 +106,29 @@ With the assertion that our second operand is a constant, we can simply adjust i
 \input{fig/arith_conv.tex}
 A other situation where we can optimize the conversion nodes are arithmetical operations, where one operand is again constant. In this case we don't really remove the conversion node, we more drag it through the arithmetical operation, and place it afterwards. We do this and hope that we can remove it with a compare conversion optimization after that.
 Such a construct might look like \ref{fig:example:arithmetical_opt} . After we adjusted the mode of the constant we can move the conversion from the operand of the arithmetical operation to the end.
+
+\section{How about section}
+This section is about decisions that where made, and why they are made.
+
+\subsection{Value range vs. bitwidth}
+
+%Where is the actaul difference when looking at the rules.
+The analysis previously explained is outputting bitwidth informations. The fixpoint iteration uses the set of rules described in \ref{table_of_rules}. The same analysis could use a set of rules where we don't calculate the bitwidth, but rather the direct range of possible values (Not bound to $2^x$ form). There is already such a implementation in \libFIRM, its called value range propagation (VRP).
+
+%What are the costs for jumping one bit further
+However, there should be some way to compare both models. We know that every node in libfirm has a mode, this mode is defining the length of a data word. The analysis is measuring how many of the bits from this data word are used. So once a node gets marked dirty, there is some sort of delta, like $ \delta = max _{bitwidth}(\textsc{}x) - max _{bitwidth}(\hat{x}) $.
+In case of bitwidth, we know that the delta will have the form of $2^x$. In case of the value range detection, the only assertion we can have is $\delta = 1$.
+Now lets take a graph like ???, where X is some sub graph that performs a operation. Under the assertion that the delta of last node is minimal, then the bitwidth analysis is faster.
+A real life example where this is happening is for example the simple access to a array, like $array[i]$.
+%Sample run on a for / while loop
+
+
+
+\subsection{Widening \& Narrowing}
+%what is widening / narrowing
+%The idea of widening and narrowing is, that you can make your optimization 
+
+%How are graphs looking like in real world, where is the worst case when comparing vrp to bwa
+
+%Why is there no big difference between the results of the vrp and the bwa
+
