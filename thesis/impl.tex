@@ -28,11 +28,11 @@ $
 
 \input{fig/lattice.tex}
 
-\paragraph{Analysis} The analysis works as a fixed point iteration. Therefore we use  \ref{fig:lattice} as lattice. The values of the lattice are representing the tuples from the analysis.
+\paragraph{Analysis} The analysis works as a fixed point iteration. Therefore we use  \autoref{fig:lattice} as lattice. The values of the lattice are representing the tuples from the analysis.
 
 As a first step, we iterate over every single node and initialize the node with $\top$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
 
-The second step consists of recalculating every \textit{dirty} node in the graph. if the stable bits of $x$ are greater than those from $\hat{x}$, then the new value is memorized as $\hat{x}$ of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in \ref{table_of_rules}.
+The second step consists of recalculating every \textit{dirty} node in the graph. if the stable bits of $x$ are greater than those from $\hat{x}$, then the new value is memorized as $\hat{x}$ of the node and every successor of the node is marked as dirty. The used rules for recalculating the nodes are described in \autoref{table_of_rules}.
 
 \subsection{Value prediction}
 In addition to the normal analysis results, the fixed point iteration can insert additional 
@@ -40,7 +40,7 @@ confirm nodes. Those confirm nodes help making the analysis more accurate.
 First of all we need a few definitions for easier understanding:
 
 \subparagraph{Definition: True / false Blocks}
-A compare node in \libFIRM has always a relation, 2 operands and 2 blocks. One of the blocks is executed depending on if the criteria was meet or not. The block that is executed when it was meet, is called \emph{true-block} the other block is called \emph{false-block}. The structure is visualized in \ref{fig:compare_upper_bound}
+A compare node in \libFIRM has always a relation, 2 operands and 2 blocks. One of the blocks is executed depending on if the criteria was meet or not. The block that is executed when it was meet, is called \emph{true-block} the other block is called \emph{false-block}. The structure is visualized in \autoref{fig:compare_upper_bound}
 \input{fig/upper_bound_cmp.tex}
 
 \subparagraph{Definition: Upper bounds}
@@ -57,7 +57,7 @@ It will return every node that is located in \textit{b} and is a predecessor of 
 
 \subparagraph{Definition: Constant dependencies}
 \input{fig/def_xi.tex}
-While looking at C code we often see that addition and multiplication nodes are used for calculating array addresses or addresses for structure access. Therefore one operant of the arithmetical operations is often constant. A example for this can be found at \ref{fig:def:xi}.
+While looking at C code we often see that addition and multiplication nodes are used for calculating array addresses or addresses for structure access. Therefore one operant of the arithmetical operations is often constant. A example for this can be found at \autoref{fig:def:xi}.
 We define $\xi$ to explore the whole tree of one constant one not constant operants, and return us every node that was not constant.
 \begin{center}
 $\xi(a) := 
@@ -92,7 +92,7 @@ Such stable conversion nodes can be found using the bitwidth analysis. We compar
 
 \paragraph{Removing conversion nodes}
 \input{fig/conv_opt.tex}
-In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analyses. The confirm insertion algorithm of libfirm is searching for assertions that can be made based on looking at compare nodes. This works quite well. However, the example at \ref{fig:example:conversion_opt} does not work
+In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in them. Removing those nodes also has the advantage of helping other analyses. The confirm insertion algorithm of libfirm is searching for assertions that can be made based on looking at compare nodes. This works quite well. However, the example at \autoref{fig:example:conversion_opt} does not work
 The insertion code could only insert a Confirm between the Compare and the conversion. However, it would need to be behind the conversion node, in order to help the rest of the code, since other nodes will likely depend on the operand of the conversion node and not on the conversion node itself. 
 After removing the conversion node, the analysis can find a assertion based on the compare node. This also helps the branch prediction and dead code elimination.
 
@@ -105,7 +105,7 @@ With the assertion that our second operand is a constant, we can simply adjust i
 \paragraph{Arithmetical-Conversion optimization}
 \input{fig/arith_conv.tex}
 A other situation where we can optimize the conversion nodes are arithmetical operations, where one operand is again constant. In this case we don't really remove the conversion node, we more drag it through the arithmetical operation, and place it afterwards. We do this and hope that we can remove it with a compare conversion optimization after that.
-Such a construct might look like \ref{fig:example:arithmetical_opt} . After we adjusted the mode of the constant we can move the conversion from the operand of the arithmetical operation to the end.
+Such a construct might look like \autoref{fig:example:arithmetical_opt} . After we adjusted the mode of the constant we can move the conversion from the operand of the arithmetical operation to the end.
 \section{VHDL generation}
 Projects like libva have made the first step into the direction of hardware accelated video decoding on a computer system. The projects tries to provide standardized access to the for decoding video streams like MPEG-2, H.264/AVC, H.265/HEVC, VP8, VP9, VC-1. The project itself handles the passing and messaging from a front end application like a video player, to the driver itself. The driver itself then answers the calls from the API. And the decoded picture goes back to the front end application. However, the driver itself still needs to do the decoding on its side. Preferable implemented in hardware, since this is usually providing the best performance. The amount of work needed for implementing such a decoder for MPEG-2 can be found in FIXME. %a63b48fa89cc2a673e4899c174459bc2e290.pdf
 While looking at this it seems like a good idea to think about writing the code in a higher level language and let it simply compile against vhdl. Exactly this is done by the firm tool \textit{firm2vhdl}.
@@ -122,7 +122,7 @@ This section is about decisions that where made, and why they are made.
 \subsection{Value range vs. bitwidth}
 
 %Where is the actaul difference when looking at the rules.
-The analysis previously explained is outputting bitwidth informations. The fixpoint iteration uses the set of rules described in \ref{table_of_rules}. The same analysis could use a set of rules where we don't calculate the bitwidth, but rather the direct range of possible values (Not bound to $2^x$ form). There is already such a implementation in \libFIRM, its called value range propagation (VRP).
+The analysis previously explained is outputting bitwidth informations. The fixpoint iteration uses the set of rules described in \autoref{table_of_rules}. The same analysis could use a set of rules where we don't calculate the bitwidth, but rather the direct range of possible values (Not bound to $2^x$ form). There is already such a implementation in \libFIRM, its called value range propagation (VRP).
 
 %What are the costs for jumping one bit further
 However, there should be some way to compare both models. We know that every node in libfirm has a mode, this mode is defining the length of a data word. The analysis is measuring how many of the bits from this data word are used. So once a node gets marked dirty, there is some sort of delta, like $ \delta = max _{bitwidth}(\textsc{}x) - max _{bitwidth}(\hat{x}) $.
