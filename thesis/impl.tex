@@ -1,7 +1,10 @@
 \chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analysis is a data flow analysis. The analysis attaches a $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful is the node has a integer style mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}. Since this is a data flow analysis that is build on a iterative approach we might want to address the current tuple of a node x, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
+The analysis is a data flow analysis. The analysis attaches a $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful is the node has a integer-mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}. \newline
+What stable here means can be observed while looking at \ref{fig:numbers}.
+For the first line of the table we have five stable digits. The second line has 7 stable digits.\newline
+Since this is a data flow analysis that is build on a iterative approach we might want to address the current tuple of a node x, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
 
 \paragraph{Bit representation}
 The stable bits are indicating how many bits are stable, and therefore not used.
