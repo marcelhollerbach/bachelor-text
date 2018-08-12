@@ -1,14 +1,39 @@
 \chapter{Basics}\label{sec:basics}
 
 \section{cparser / libfirm}
-Compilers are now written for half a century. Over the time a new structure has evolved. The compiler is split into two parts. The first part is called \textit{front end} and handles everything related to the language specific parts. The second part is called \textit{back end} and handles the translation into something like assembler or java bytecode. As an example, cparser is handling the c specific tasks. For the generation of the hardware instructions $\libFIRM$ is used.
-The interaction between front end and back end is handled through a abstract data structure.
-Before the abstract data structure is translated into hardware code, analysis and optimizations can take place. 
-The data structure of the back end is build out of a graph with blocks.
-A graph consists of nodes. Every node has a operands, and is representing a operation. In the rest of  Additionally a node is located in a block. A node is executed when all of its operands are done with execution. If there are no operands, the node is executed when the block is executed.
-%FIXME reference to a better describing paper or smth.
-A other software that does the same thing is \textit{clang}, where the back end is handled by llvm.
+Modern compilers are now developed for half a century. Over the time a new structure has evolved. Compilers are split into two parts. The first part is called \textit{front end} and handles everything related to the language specific parts. The second part is called \textit{back end} and handles the translation into something like assembler or java bytecode. As an example, cparser is handling the c specific tasks. For the generation of the hardware instructions $\libFIRM$ is used.
 
+\paragraph{Control flow graph in \libFIRM} The interaction between the front and back end is based on a data structure called control flow graph (CFG). A CFG is a directed graph. The relation from a node $A$ to a node $B$ can be interpreted as node $A$ having node $B$ as a operand.
+CFGs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis.
+
+In $\libFIRM$ the nodes of the CFG can have different types: control flow, arithmetical operations, memory handing, constant expressing. A node is additionally placed in a block. A node is executed if all its operands have been executed. Or, if there are no operands, when its block is executed.
+%FIXME reference to a better describing paper or smth. 
+Another software that does the same thing is \textit{clang}, where the back end is handled by llvm.
+A more in detail explanation can be found in TODO TODO.
+
+\paragraph{interaction from front to back end}
+
+\begin{figure}
+	\centering
+	\begin{lstlisting}[frame=single]
+	#include <stdlib.h>
+	#include <stdio.h>
+	
+	int main(int argc, char const *argv[]) {
+	  printf("Hello Firm!");
+	  return 0;
+	}
+	\end{lstlisting} 
+	\caption{Sample source code}
+	\label{code:workflow:example}
+\end{figure}
+
+As mentioned earlier, $\libFIRM$ users are building up a CFG using \libFIRM s API.
+Now let us take cparser to see a example how the front end and the backend are working together. We want to compile the program code from \ref{code:workflow:example}.  \newline
+First of all the front end will parse the given source code. The parsed code then will be stuffed into a abstract syntax tree (AST). The representation in the abstract syntax tree will encode the syntactical informations from the software. Informations like curly brackets will not be needed anymore. \newline
+After that the AST will be transformed into a CFG. \newline
+At this point the front end handed the informations for binary creation to the back end. However, the front end can now tell the back end to perform optimizations on the information. In terms of C this is often controlled with the -O{1,2,3} flags. \newline
+At the last stage the back end is told to output a binary.
 
 \subsection{Number representation}
 So called \textit{modes} are used in libfirm to represent data words where operations are performed on. Such a mode has a length. A mode also has a type, the interesting types for us are the number style types. Which are integer and float. The most interesting for us are the integer-mode, since these are the types where we are performing our analysis on.
