@@ -1,7 +1,7 @@
 \chapter{Basics}\label{sec:basics}
 
 \section{cparser / libfirm}
-Modern compilers are now developed for half a century. Over the time a new structure has evolved. Compilers are split into two parts. The first part is called \textit{front end} and handles everything related to the language specific parts. The second part is called \textit{back end} and handles the translation into something like assembler or java bytecode. As an example, cparser is handling the c specific tasks. For the generation of the hardware instructions $\libFIRM$ is used.
+Modern compilers are now developed for over half a century. Over the time a new structure has evolved. Compilers are split into two parts. The first part is called \textit{front end} and handles everything related to the language specific parts. The second part is called \textit{back end} and handles the translation into something like assembler or java bytecode. As an example, cparser is handling the c specific tasks. For the generation of the hardware instructions $\libFIRM$ is used.
 
 \paragraph{Control flow graph in \libFIRM} The interaction between the front and back end is based on a data structure called control flow graph (CFG). A CFG is a directed graph. The relation from a node $A$ to a node $B$ can be interpreted as node $A$ having node $B$ as a operand.
 CFGs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis.
@@ -28,15 +28,14 @@ A more in detail explanation can be found in TODO TODO.
 	\label{code:workflow:example}
 \end{figure}
 
-As mentioned earlier, $\libFIRM$ users are building up a CFG using \libFIRM s API.
-Now let us take cparser to see a example how the front end and the backend are working together. We want to compile the program code from \ref{code:workflow:example}.  \newline
+As an example, we want to compile the program code from \ref{code:workflow:example}.
 First of all the front end will parse the given source code. The parsed code then will be stuffed into a abstract syntax tree (AST). The representation in the abstract syntax tree will encode the syntactical informations from the software. Informations like curly brackets will not be needed anymore. \newline
 After that the AST will be transformed into a CFG. \newline
 At this point the front end handed the informations for binary creation to the back end. However, the front end can now tell the back end to perform optimizations on the information. In terms of C this is often controlled with the -O{1,2,3} flags. \newline
-At the last stage the back end is told to output a binary.
+After the optimizations have taken place, the binary files can be written into a file, and the compiler call is finished.
 
 \subsection{Number representation}
-So called \textit{modes} are used in libfirm to represent data words where operations are performed on. Such a mode has a length. A mode also has a type, the interesting types for us are the number style types. Which are integer and float. The most interesting for us are the integer-mode, since these are the types where we are performing our analysis on.
+So called \textit{modes} are used in libfirm to represent data words where operations are performed on. A mode has a length and a type. The type can be \textit{integer}, \textit{float}, \textit{reference}, \textit{data} and \textit{boolean}. For us, the only interesting type is the integer type, since this is the only type where we can perform our analysis on.
 
 \begin{figure}
 	\centering
@@ -50,33 +49,43 @@ So called \textit{modes} are used in libfirm to represent data words where opera
 	\label{fig:numbers}
 \end{figure}
 
-Those integer-modes can be signed or unsigned. The length of the mode defines the maximum number. If it is signed, then it also defines the minimum number.Otherwise the minimum is just null. The sign is encoded using two's complement. As an example, in \autoref{fig:numbers} two numbers are displayed with its hardware representation.
+Those integer-modes can be signed or unsigned. The length of the mode defines the maximum number. If it is signed, then it also defines the minimum number. Otherwise the minimum is just null. The sign is encoded using two's complement. As an example, in \autoref{fig:numbers} two numbers are displayed with its hardware representation.
 
-The term \textit{mode} here is used to describe integer-modes for the rest of this text.
+The term \textit{mode} is used to describe integer-modes for the rest of this text.
 
 \section{Lattice}
-A lattice is a algebra structure. There are the following rules for the them:
+A lattice is a algebra structure. For a lattice $V$, there are the following rules:
 \begin{itemize}
-	\item Finite number of elements
+	\item $|V| \not= \infty $
 	\item $\vee: V \times V \rightarrow V$ will return the smallest element, that is bigger or equal than the two operands
 	\item $\wedge: V \times V \rightarrow V$ will return the biggest element, that is smaller or equal than the two operands
-	\item $\forall a,b \in V : \exists a \vee b \text{ AND } a \wedge b$
+	\item $\forall a,b \in V : \exists a \vee b \text{ AND } \exists a \wedge b$
 	\item $\forall u,v \in V : u \vee ( u \wedge v) = v \text{ AND } u \wedge ( u \vee v ) = v$
 \end{itemize}
 
 The element, which is the smallest from all elements, is called $\bot$. The biggest of all is called $\top$.
 
 A lattice can also be made visible in a Hesse diagram, which you can see in \autoref{fig:lattice}
-%idea of lattices
-%moving in lattecis
 
 \section{Fixed point iteration}
-
 Fixed point iteration is a method for finding a fixed point, while iterating over a function. \newline
-The function we use for iterating is called f, and is defined as $f: D \rightarrow D$. F is continues. We call $x \in D$ a fixed point if $f(x)=x$.
+The function we use for iterating is called f, and is defined as $f: D \rightarrow D$. $f$ is continuous, additionally $|D|$ must be finite. We call $x \in D$ a fixed point if $f(x)=x$.
+
+\paragraph{Prove}$f$ is continuous, this means $\forall x >= y: f(x) >= f(y)$. So we know that $f(x) = y$ where $y > x$. Or $f(x) = x$, which means that we found a fixed point. However, the first case can only happen a finite amount of times, since $|D| \not= \infty$. Thus there has to exist a fixed point.
 
 \paragraph{fixed points in compiler analysis}
-We can transform and use the fixed point iteration to be working on a graph G. Each node has a number and a element from the lattice. In the beginning the element is $\bot$. We call the number of the node \textit{id}. The lattice element is called \textit{v}.
-The set $D$ consists of elements of the form $\{id, v\}$. Where we can say that $|D| = |G|$, and every node from G is part of D.
-The function f then calculates for every node, if a better v can be found. If there is one, then a new tuple $\{id, v\}$ with the better value will replace the old tuple in D.
-If we now hit the situation where $f(x) = x$, then we know that we have found a fixed point, which is the best correct solution we could find.
+We can transform and use the fixed point iteration to be working on a CFG. For the following we define additionally:
+\begin{itemize}
+	\item CFG is called $(G,V,E)$
+	\item The lattice we use is called $L$
+	\item $f _{node}:L \rightarrow L$ As the function for iterating on a single node. $f _{node}$ is continuous.
+	\item $D$ is a set, where we can say that: $\forall d \in D: d = \{(0, v_0), ... , (n, v_n)\}$
+	\item $f(d) := \{(id, \hat{v})| (id, v) \in d \wedge f _{node}(v) = \hat{v}\}$
+\end{itemize}
+
+We start the iteration with $d_{bot} := \{(0,\bot), ..., (n, \bot)\}$. At some point, while continuing the iteration, we will find a $\hat{d} = f(\hat{d})$. 
+
+\paragraph{Prove}: $|D|$ consists of every possible configuration. There is only a finite amount of elements in the lattice. Thus we can say that $|D|=2^m$. \newline
+We say $d_1 <= d_2 \equiv \forall (id_2, v_2) \in d_2: \forall (id_1, v_1) \in d_1 : v_2 >= v_1$. $f_{node}$ is continuous. \newline
+f being not continuous means $\exists x <= y: f(x) > f(y)$.
+This means that there has to be a $v_x \in x$ and $v_y \in y$, where $f_{node}(v_x) > f_{node}(v_y)$ even if $v_x <= v_y$, which is against the definition of $f_{node}$. Thus f has to be continuous.
