@@ -1,0 +1,15 @@
+\begin{figure}
+	\centering
+	\pgfplotstabletypeset[col sep=comma,
+	columns={"lib", "avgBw", "avgBwNc", "safedBw", "safedBwNc"},
+	columns/"avgBwNc"/.style={column type=l},
+	columns/"safedBwNc"/.style={column type=l},
+	columns/"lib"/.style={column type=l,string type},
+	columns/"avgBw"/.style={column type=l},
+	columns/"safedBw"/.style={column type=l},
+	every head row/.style={before row=\toprule, after row=\midrule}, 
+	every last row/.style={after row=\bottomrule}
+	]{data.csv}
+\caption{Statistics from the projects}
+\label{table:project_average_bitwidth}
+\end{figure}
