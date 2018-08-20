@@ -10,12 +10,30 @@ A Node itself has a bitwidth usage, if we dont perform our analysis, then we hav
 The bitwidth of a function then can be described by the average usage of all the nodes. Reason for using the average is, we can compare large functions with smaller ones. However, a small function like (ref) has not as much potential for analyzing its bitwidth, than some bigger function.
 \paragraph{Const nodes}
 \input{fig/table_const.tex}
-While evaluating the projects, it came up that a normal graph consists of a lot of constant nodes, exact number can be found in \autoref{table:amount_const}. The problem with this is, the bitwidth of such a node can be quite low, while it does not matter on the hardware at all, since they are often decoded directly in a hardware instruction, or don't take up any additional space in vhdl. Additionally, calculating how much place a constant takes, is a matter of one log2(...) call. And can safe up a lot of bitwidth when the number is low. However, we are more interested in what the fixed point iteration safes. Due to the iterations, not based on constant values.
+While evaluating the projects, it came up that a normal graph consists of a lot of constant nodes, exact numbers can be found in \autoref{table:amount_const}. The problem with this is, the bitwidth of such a node can be quite low, while it does not matter on the hardware at all, since they are often decoded directly in a hardware instruction, or don't take up any additional space in vhdl. Additionally, calculating how much place a constant takes, is a matter of one log2(...) call. However, we are more interested in what the fixed point iteration safes. Due to the iterations, not based on constant values.
+All in all, constant nodes with small values are basically dragging the average value of a function down, while we don't really find any good upper bound in the graph of a function.
+Thus the statistics are divided into statistics with and without them.
 
-%Excluding const nodes
-%results without const
-%results with const
+\paragraph{Project results}
+\input{fig/project_average_bitwidth.tex}
+In \autoref{table:amount_const} the second column is showing the total number of nodes that got created in order to compile the library. This can be used as some sort of complexity metric. What \ref{table:project_average_bitwidth} shows is that the complexity of a library is not  correlated with how much bitwidth can be saved. What we see is that we safe roughly 9 bits in average per node when doing the bitwidth analysis, without constant nodes.Suprisingly the amount of saved bits does not depend on the number of nodes in total.
 
 \section{Optimization assembler improvements}
+
+In this section we compare the shared object files of the library. The first run was done with plain cparser, the second run was done with cparser + the patches created for this work.
+After that the disassembly of the shared object files are compared. However, comparing those two shared object files is quite hard, due to addresses and instruction order changes. Making the comparing easier was possible after removing the address of every line and removing the arguments of the instructions. Loosing the arguments of the instruction makes it hard to compare if something in the calling of the function has changed. However, we can better study the raw changes on the instructions.
+
+\paragraph{libgif} There was not a single change, the two binary files are identical.
+\paragraph{libjpeg} The assembler output from after the optimization is about 30 instructions longer. The functions don't differ a lot. It looks most of the times like simple reordering of instructions. The amount of additional instructions is caused by instruction duplication, which can be caused by loop unrolling.
+
+\paragraph{libtiff} The results here are similar to libjpeg. One difference is, the optimization causes add instructions to be translated to lea instructions. 
+
+\paragraph{libpng} libpng seems to be different here. The assembly file after the optimization is shorter than before, by 10 instructions. Instructions that are removed are mainly mov instructions.
+
+\paragraph{zlib} zlib is similar to libpng. The file gets 3 lines shorter, which is not much. The rest of the binary differences are basically instruction order changes.
+
+The data gathered here can be found at (???).
+Summarizing the results from above. The optimization does not improve image decoding code. 
+
 \section{Optimization vhdl improvements}
 %
