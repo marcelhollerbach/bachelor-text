@@ -7,7 +7,7 @@ For those projects we are measuring two things. First we measure how effective o
 \section{General bitwidth}
 %How much bitwidth the nodes are having in average per function
 A Node itself has a bitwidth usage, if we dont perform our analysis, then we have to assume the code uses the complete bitwidth of a node. Which is the whole data word of a mode.
-The bitwidth of a function then can be described by the average usage of all the nodes. Reason for using the average is, we can compare large functions with smaller ones. However, a small function like (ref) has not as much potential for analyzing its bitwidth, than some bigger function.
+The bitwidth of a function then can be described by the average usage of all the nodes. Reason for using the average is, we can compare large functions with smaller ones. However, a small function like FIXME has not as much potential for analyzing its bitwidth, than some bigger function.
 \paragraph{Const nodes}
 \input{fig/table_const.tex}
 While evaluating the projects, it came up that a normal graph consists of a lot of constant nodes, exact numbers can be found in \autoref{table:amount_const}. The problem with this is, the bitwidth of such a node can be quite low, while it does not matter on the hardware at all, since they are often decoded directly in a hardware instruction, or don't take up any additional space in vhdl. Additionally, calculating how much place a constant takes, is a matter of one log2(...) call. However, we are more interested in what the fixed point iteration safes. Due to the iterations, not based on constant values.

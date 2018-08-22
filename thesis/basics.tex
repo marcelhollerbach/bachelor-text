@@ -7,9 +7,8 @@ Modern compilers are now developed for over half a century. Over the time a new 
 CFGs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis.
 
 In $\libFIRM$ the nodes of the CFG can have different types: control flow, arithmetical operations, memory handing, constant expressing. A node is additionally placed in a block. A node is executed if all its operands have been executed. Or, if there are no operands, when its block is executed.
-%FIXME reference to a better describing paper or smth. 
 Another software that does the same thing is \textit{clang}, where the back end is handled by llvm.
-A more in detail explanation can be found in TODO TODO.
+A more in detail explanation can be found in \cite{libfirm}
 
 \paragraph{interaction from front to back end}
 
@@ -66,6 +65,8 @@ A lattice is a algebra structure. For a lattice $V$, there are the following rul
 The element, which is the smallest from all elements, is called $\bot$. The biggest of all is called $\top$.
 
 A lattice can also be made visible in a Hesse diagram, which you can see in \autoref{fig:lattice}
+
+A more detailed introduction can be found in \cite{lattice_theory}.
 
 \section{Fixed point iteration}
 Fixed point iteration is a method for finding a fixed point, while iterating over a function. \newline
