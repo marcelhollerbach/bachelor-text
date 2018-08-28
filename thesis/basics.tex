@@ -84,9 +84,9 @@ The element, which is the least of all elements, is called $\bot$. The greatest 
 A more detailed introduction can be found in \cite{lattice_theory}.
 
 \subsection{Fixed point iteration}
-Fixed point iteration is a method for finding a fixed point, while iterating over a function. \newline
-The function we use for iterating is called f, and is defined as $f: D \rightarrow D$. $f$ is continuous, additionally $|D|$ must be finite. We call $x \in D$ a fixed point if $f(x)=x$.
-Note, that we can find a fixed point, for every $D$ and $f$.
+Fixed point iteration is a method for finding a $x$ where we know that $f(x)=x$. \newline
+First of all we define $f: D \rightarrow D$. $f$ is monotone, additionally $|D|$ must be finite. We call $x \in D$ a fixed point if $f(x)=x$.
+For iterating we start with the minimum of D. We define $y_0=f(min(D))$, $y_i=f(y_{i-1})$. With the requirements from above we can say: $\exists i \in N : y_i = y_{i-1}$.
 
 %\paragraph{Prove}$f$ is continuous, this means $\forall x >= y: f(x) >= f(y)$. So we know that $f(x) = y$ where $y > x$. Or $f(x) = x$, which means that we found a fixed point. However, the first case can only happen a finite amount of times, since $|D| \not= \infty$. Thus there has to exist a fixed point.
 
@@ -120,7 +120,7 @@ A possible solution for implementing fixed point algorithms could be done by ite
 		\If{node\_changed}{
 			\ForEach{operand $\in$ node.operands}{
 				\If{!worklist.contains(operand)}{
-					worklist.append(operand)	
+					worklist.appi jend(operand)	
 				}
 			}
 		}
@@ -129,4 +129,5 @@ A possible solution for implementing fixed point algorithms could be done by ite
 	\label{worklist}
 \end{algorithm}
 
-The base idea is to maintain a worklist which contains all nodes that are dirty. A node is considered dirty, when its operands have changed, but the node itself is not recalculated.
+The base idea is to maintain a worklist which contains all nodes that are dirty. A node is considered dirty, when its operands have changed, but the node itself is not recalculated. Additional informations can be found at \cite{iterative-data-flow-analysis-revisited}
+%http://cseweb.ucsd.edu/classes/sp00/cse231/report/node12.html
