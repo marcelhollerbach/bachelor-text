@@ -3,11 +3,9 @@
 \section{cparser / libfirm}
 Modern compilers are now developed for over half a century. Over the time a new structure has evolved. Compilers are split into three parts. The first part is called \textit{front end} and handles everything related to the language specific parts. The second part is called \textit{middle ware} and handles the abstract notation of code execution. The last part is called \textit{back end} and does the translation into something like assembler or java bytecode. As an example, cparser is handling the C specific tasks. The parsed c code is then translated into a control flow graph from $\libFIRM$, which is the middle ware. The $\libFIRM$ middle ware then also acts as back end and translates the control flow graph into assembler / java bytecode.
 
-\paragraph{Control flow graph in \libFIRM} The interaction between the front and middle ware is based on a data structure called control flow graph (CFG). A CFG is a directed graph. Each node is representing a operation. A node can have operands. We say that a node always depends on a other node, when there is a edge from the node to the other node. CFGs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis.
-
-In $\libFIRM$ the nodes of the CFG can have different types: control flow, arithmetical operations, memory handing, constant expressing. A node is additionally placed in a block. A node is executed if all its operands have been executed. Or, if there are no operands, when its block is executed.
-Another software that does the same thing is \textit{clang}, where the back end is handled by llvm.
-A more in detail explanation can be found in \cite{libfirm}
+\paragraph{Control flow graph in \libFIRM} The interaction between the front and middle ware is based on a data structure called control flow graph (CFG). A CFG is a directed graph. Each node is representing a operation. A node can have operands. We say that a node always depends on a other node, when there is a edge from the node to the other node. CFGs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis. In $\libFIRM$ the nodes of the CFG can have different types: control flow, arithmetical operations, memory handing, constant expressing. A node is additionally placed in a block. A node is executed if all its operands have been executed. Or, if there are no operands, when its block is executed.
+Another software that does the same thing is \textit{clang}, where the back end is handled by \textit{llvm}.
+A more in detail explanation can be found in \cite{libfirm}. A more theoretical and abstraction introduction can be found in \cite{control-flow-analysis}
 
 \paragraph{Interaction from front to back end}
 
@@ -86,7 +84,7 @@ A more detailed introduction can be found in \cite{lattice_theory}.
 \subsection{Fixed point iteration}
 Fixed point iteration is a method for finding a $x$ where we know that $f(x)=x$. \newline
 First of all we define $f: D \rightarrow D$. $f$ is monotone, additionally $|D|$ must be finite. We call $x \in D$ a fixed point if $f(x)=x$.
-For iterating we start with the minimum of D. We define $y_0=f(min(D))$, $y_i=f(y_{i-1})$. With the requirements from above we can say: $\exists i \in N : y_i = y_{i-1}$.
+For iterating we start with the minimum of D. We define $y_0=f(min(D))$, $y_i=f(y_{i-1})$. With the requirements from above we can say: $\exists i \in N : y_i = y_{i-1}$. For further reading, please see \cite{fixed-point-iteration-basic}
 
 %\paragraph{Prove}$f$ is continuous, this means $\forall x >= y: f(x) >= f(y)$. So we know that $f(x) = y$ where $y > x$. Or $f(x) = x$, which means that we found a fixed point. However, the first case can only happen a finite amount of times, since $|D| \not= \infty$. Thus there has to exist a fixed point.
 

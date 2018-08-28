@@ -1,17 +1,17 @@
 \chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analysis is a data flow analysis. The analysis attaches a $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful is the node has a integer-mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}. \newline
-What stable here means can be observed while looking at \ref{fig:numbers}.
+The analysis is a data flow analysis. The analysis attaches an $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful if the node has an integer-mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}. \newline
+What stable here means can be observed when looking at \ref{fig:numbers}.
 For the first line of the table we have five stable digits. The second line has 7 stable digits.\newline
-Since this is a data flow analysis that is build on a iterative approach we might want to address the current tuple of a node x, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
+Since this is a data flow analysis, which is built on an iterative approach. We might want to address the current tuple of a node $x$, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
 
 \paragraph{Bit representation}
-The stable bits are indicating how many bits are stable, and therefore not used.
-The second value of the tuple indicates if the value will ever reach negative numbers or not. And thus indicate at least one stable bit at the highest position. However, the second value is only meaningful for modes that allow signs.
+The stable bits indicate how many bits are stable, and therefore not used.
+The second value of the tuple indicates if the value will ever reach negative numbers or not. Thus it indicates at least one stable bit at the highest position. However, the second value is only meaningful for modes that allow signs.
 
 \paragraph{Range representation}
-There is also a second way of interpreting the two values. The stable bits can define a minimum and maximum range. The maximum number is reached if the stable bits are just always zero. If the mode is signed and the node is not positive, then the minimum number is reached by assuming all stable bits are one. Otherwise the minimum range is 0. We can define the following min max definitions for the ranges:
+There is also a second way of interpreting the two values. The stable bits can define a minimum and maximum range. The maximum number is reached if the stable bits are all zero, and the rest one. If the mode is signed and the node is not positive, then the minimum number is reached by assuming all stable bits are one, and the rest zero. Otherwise the minimum is 0. We can define the following min max definitions for the ranges:
 
 $
 max_{bitwidth}(x)=
@@ -25,7 +25,7 @@ $
 min_{bitwidth}(x)=
 \left\{
 \begin{array}{l}2^{stable\_digits-1}\\0\end{array}
-\begin{array}{l} {mode.signed and is_positive} \\ {Otherwise} \end{array}
+\begin{array}{l} {mode.signed \wedge is\_positive} \\ {Otherwise} \end{array}
 \right.
 $
 
