@@ -1,16 +1,15 @@
 \chapter{Basics}\label{sec:basics}
 
 \section{cparser / libfirm}
-Modern compilers are now developed for over half a century. Over the time a new structure has evolved. Compilers are split into two parts. The first part is called \textit{front end} and handles everything related to the language specific parts. The second part is called \textit{back end} and handles the translation into something like assembler or java bytecode. As an example, cparser is handling the c specific tasks. For the generation of the hardware instructions $\libFIRM$ is used.
+Modern compilers are now developed for over half a century. Over the time a new structure has evolved. Compilers are split into three parts. The first part is called \textit{front end} and handles everything related to the language specific parts. The second part is called \textit{middle ware} and handles the abstract notation of code execution. The last part is called \textit{back end} and does the translation into something like assembler or java bytecode. As an example, cparser is handling the C specific tasks. The parsed c code is then translated into a control flow graph from $\libFIRM$, which is the middle ware. The $\libFIRM$ middle ware then also acts as back end and translates the control flow graph into assembler / java bytecode.
 
-\paragraph{Control flow graph in \libFIRM} The interaction between the front and back end is based on a data structure called control flow graph (CFG). A CFG is a directed graph. The relation from a node $A$ to a node $B$ can be interpreted as node $A$ having node $B$ as a operand.
-CFGs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis.
+\paragraph{Control flow graph in \libFIRM} The interaction between the front and middle ware is based on a data structure called control flow graph (CFG). A CFG is a directed graph. Each node is representing a operation. A node can have operands. We say that a node always depends on a other node, when there is a edge from the node to the other node. CFGs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis.
 
 In $\libFIRM$ the nodes of the CFG can have different types: control flow, arithmetical operations, memory handing, constant expressing. A node is additionally placed in a block. A node is executed if all its operands have been executed. Or, if there are no operands, when its block is executed.
 Another software that does the same thing is \textit{clang}, where the back end is handled by llvm.
 A more in detail explanation can be found in \cite{libfirm}
 
-\paragraph{interaction from front to back end}
+\paragraph{Interaction from front to back end}
 
 \begin{figure}
 	\centering
@@ -32,10 +31,6 @@ First of all the front end will parse the given source code. The parsed code the
 After that the AST will be transformed into a CFG. \newline
 At this point the front end handed the informations for binary creation to the back end. However, the front end can now tell the back end to perform optimizations on the information. In terms of C this is often controlled with the -O{1,2,3} flags. \newline
 After the optimizations have taken place, the binary files can be written into a file, and the compiler call is finished.
-
-\subsection{Number representation}
-So called \textit{modes} are used in libfirm to represent data words where operations are performed on. A mode has a length and a type. The type can be \textit{integer}, \textit{float}, \textit{reference}, \textit{data} and \textit{boolean}. For us, the only interesting type is the integer type, since this is the only type where we can perform our analysis on.
-
 \begin{figure}
 	\centering
 	\begin{tabular}{c | c c c c c c c c c}
@@ -47,34 +42,55 @@ So called \textit{modes} are used in libfirm to represent data words where opera
 	\caption{Number representation}
 	\label{fig:numbers}
 \end{figure}
+\paragraph{Number representation}
+So called \textit{modes} are used in libfirm to represent data words on which operations are performed. A mode specifies a length in bits. A data word can have a type, this can be \textit{integer}, \textit{float}, \textit{reference}, \textit{data} and \textit{boolean}. For us, the only interesting type is the integer type, since this is the only type where we can save bitwidth for now. Those integer-modes can be signed or unsigned. The length of the mode defines the maximum number. If it is signed, then it also defines the minimum number. Otherwise the minimum is just null. The sign is encoded using two's complement. As an example, in \autoref{fig:numbers} two numbers are displayed with its hardware representation. There are the following integer type modes in \libFIRM : 
+%\textit{mode\_Bs}:
+\textit{int8},
+%\textit{mode\_Bu}: 
+\textit{uint8},
+%\textit{mode\_Hs}: 
+\textit{int16},
+%\textit{mode\_Hu}: 
+\textit{uint16},
+%\textit{mode\_Is}: 
+\textit{int32},
+%\textit{mode\_Iu}:
+\textit{uint32} ,
+%\textit{mode\_Ls}: 
+\textit{int64},
+%\textit{mode\_Lu}:
+\textit{uint64},
 
-Those integer-modes can be signed or unsigned. The length of the mode defines the maximum number. If it is signed, then it also defines the minimum number. Otherwise the minimum is just null. The sign is encoded using two's complement. As an example, in \autoref{fig:numbers} two numbers are displayed with its hardware representation.
+The term \textit{mode} is used to describe integer-modes for the rest of this thesis.
 
-The term \textit{mode} is used to describe integer-modes for the rest of this text.
+\section{Mathematical theory}
 
-\section{Lattice}
+There are a few mathematical basics, which are known to be useful for performing compiler analysis. The first basic is lattice. A lattice can be useful for comparing elements, which are not directly comparable. The second basic is the fixed point iteration.
+
+\subsection{Lattice}
+
 A lattice is a algebra structure. For a lattice $V$, there are the following rules:
+
 \begin{itemize}
-	\item $|V| \not= \infty $
-	\item $\vee: V \times V \rightarrow V$ will return the smallest element, that is bigger or equal than the two operands
-	\item $\wedge: V \times V \rightarrow V$ will return the biggest element, that is smaller or equal than the two operands
-	\item $\forall a,b \in V : \exists a \vee b \text{ AND } \exists a \wedge b$
-	\item $\forall u,v \in V : u \vee ( u \wedge v) = v \text{ AND } u \wedge ( u \vee v ) = v$
+	\item the height of V must be $\infty$
+	\item $\sqcup: V \times V \rightarrow V$ returns the smallest element, that is bigger or equal than the two operands
+	\item $\sqcap: V \times V \rightarrow V$ returns the biggest element, that is smaller or equal than the two operands
+%	\item $\forall a,b \in V : \exists a \sqcup b \wedge \exists a \sqcap b$
+	\item $\forall u,v \in V : u \sqcup ( u \sqcap v) = v \wedge u \sqcap ( u \sqcup v ) = v$
 \end{itemize}
 
-The element, which is the smallest from all elements, is called $\bot$. The biggest of all is called $\top$.
-
-A lattice can also be made visible in a Hesse diagram, which you can see in \autoref{fig:lattice}
+The element, which is the least of all elements, is called $\bot$. The greatest of all is called $\top$. A lattice can also be made visible in a Hesse diagram, which you can see in \autoref{fig:lattice}
 
 A more detailed introduction can be found in \cite{lattice_theory}.
 
-\section{Fixed point iteration}
+\subsection{Fixed point iteration}
 Fixed point iteration is a method for finding a fixed point, while iterating over a function. \newline
 The function we use for iterating is called f, and is defined as $f: D \rightarrow D$. $f$ is continuous, additionally $|D|$ must be finite. We call $x \in D$ a fixed point if $f(x)=x$.
+Note, that we can find a fixed point, for every $D$ and $f$.
 
-\paragraph{Prove}$f$ is continuous, this means $\forall x >= y: f(x) >= f(y)$. So we know that $f(x) = y$ where $y > x$. Or $f(x) = x$, which means that we found a fixed point. However, the first case can only happen a finite amount of times, since $|D| \not= \infty$. Thus there has to exist a fixed point.
+%\paragraph{Prove}$f$ is continuous, this means $\forall x >= y: f(x) >= f(y)$. So we know that $f(x) = y$ where $y > x$. Or $f(x) = x$, which means that we found a fixed point. However, the first case can only happen a finite amount of times, since $|D| \not= \infty$. Thus there has to exist a fixed point.
 
-\paragraph{fixed points in compiler analysis}
+\paragraph{Fixed points in compiler analysis}
 We can transform and use the fixed point iteration to be working on a CFG. For the following we define additionally:
 \begin{itemize}
 	\item CFG is called $(G,V,E)$
@@ -86,7 +102,31 @@ We can transform and use the fixed point iteration to be working on a CFG. For t
 
 We start the iteration with $d_{bot} := \{(0,\bot), ..., (n, \bot)\}$. At some point, while continuing the iteration, we will find a $\hat{d} = f(\hat{d})$. 
 
-\paragraph{Prove}: $|D|$ consists of every possible configuration. There is only a finite amount of elements in the lattice. Thus we can say that $|D|=2^m$. \newline
-We say $d_1 <= d_2 \equiv \forall (id_2, v_2) \in d_2: \forall (id_1, v_1) \in d_1 : v_2 >= v_1$. $f_{node}$ is continuous. \newline
-f being not continuous means $\exists x <= y: f(x) > f(y)$.
-This means that there has to be a $v_x \in x$ and $v_y \in y$, where $f_{node}(v_x) > f_{node}(v_y)$ even if $v_x <= v_y$, which is against the definition of $f_{node}$. Thus f has to be continuous.
+%\paragraph{Prove}: $|D|$ consists of every possible configuration. There is only a finite amount of elements in the lattice. Thus we can say that $|D|=2^m$. \newline
+%We say $d_1 <= d_2 \equiv \forall (id_2, v_2) \in d_2: \forall (id_1, v_1) \in d_1 : v_2 >= v_1$. $f_{node}$ is continuous. \newline
+%f being not continuous means $\exists x <= y: f(x) > f(y)$.
+%This means that there has to be a $v_x \in x$ and $v_y \in y$, where $f_{node}(v_x) > f_{node}(v_y)$ even if $v_x <= v_y$, which is against the definition of $f_{node}$. Thus f has to be continuous.
+
+\section{Software basic}
+\subsection{Worklist algorithm}
+
+A possible solution for implementing fixed point algorithms could be done by iterating the whole CFG everytime a node changes. However, this is quite wasteful, since we know that the state of a node only depends on the state of its operands. Therefore a algorithm called \textit{worklist algorithm} has evolved and can be found in \autoref{worklist}.
+
+\begin{algorithm}[H]
+	worklist := {CFG.Nodes}\;
+	\While{worklist not empty}{
+		node := worklist.pop()\;
+		node\_changed := recalc(node)\;
+		\If{node\_changed}{
+			\ForEach{operand $\in$ node.operands}{
+				\If{!worklist.contains(operand)}{
+					worklist.append(operand)	
+				}
+			}
+		}
+	}
+	\caption{Worklist alogithm}
+	\label{worklist}
+\end{algorithm}
+
+The base idea is to maintain a worklist which contains all nodes that are dirty. A node is considered dirty, when its operands have changed, but the node itself is not recalculated.
