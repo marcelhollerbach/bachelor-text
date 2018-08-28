@@ -7,7 +7,10 @@ Modern compilers are now developed for over half a century. Over the time a new 
 Another software that does the same thing is \textit{clang}, where the back end is handled by \textit{llvm}.
 A more in detail explanation can be found in \cite{libfirm}. A more theoretical and abstraction introduction can be found in \cite{control-flow-analysis}
 
-\paragraph{Confirm nodes in \libFIRM} FIXME
+\paragraph{Confirm nodes in \libFIRM}
+In $\libFIRM$ there are several node types, one of them is called Confirm nodes. A Confirm node is not having a hardware representation. It is used to express that the operand of the Confirm node will output a value that is within the confirmed node. A Confirm node therefore has 2 operands. They are called value and bound, additionally a Confirm node has a relation.
+As relations $\not=$, $=$, $<$, $>$, $>=$, $<=$ are possible. 
+Written as prefix notation we can say that the Confirm node gives the assertion that $\tau(value, bound)$ is true, where $\tau$ is the relation.
 
 \subparagraph{True / false Blocks}
 A compare node in \libFIRM has always a relation, 2 operands and 2 blocks. One of the blocks is executed depending on if the criteria was meet or not. The block that is executed when it was meet, is called \emph{true-block} the other block is called \emph{false-block}. The structure is visualized in \autoref{fig:compare_upper_bound}
