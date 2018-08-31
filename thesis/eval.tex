@@ -31,7 +31,7 @@ In \autoref{table:amount_const} the second column is showing the total number of
 \autoref{table:project_average_bitwidth} shows that all the libraries except \textit{libjpeg} have a similar amount of bitwidth that got saved. However, the amount of saved bitwidth still does not really correlate with the complexity of the projects, since \textit{libgif} is not similar complex to \textit{zlib} or \textit{libpng}.\newline
 We can say that we safe up about 9 bits in average per node.
 
-\section{Optimization on assembler output}
+\section{Optimizations on assembler output}
 
 In this section we compare the shared object files of the library. The first run was done with plain cparser, the second run was done with cparser + the patches created for this thesis.\newline
 After that the disassembly of the shared object files are compared. However, comparing those two shared object files is quite hard, due to addresses and instruction order changes. Making the comparing easier was possible after removing the address of every line and removing the arguments of the instructions. Loosing the arguments of the instruction makes it hard to compare if something in the calling of the function has changed. However, we can better study the raw changes on the instructions. What follows is the explanation, how the assembler output changes.
