@@ -1,27 +1,40 @@
 \chapter{Evaluation}\label{sec:eval}
 
-The most interesting projects for evalulating this are projects which are doing decoding of a binary blob into something like a image. For this purpose, libjpeg, libpng and libgif are evaluated. Additionally zlib is used as it is a general purpose library for lossless compression.
+The most interesting projects for evaluating the implementation, are decoding softwares that are transforming a binary blob into a image. For this purpose, libjpeg, libpng and libgif are evaluated. Additionally zlib is done, since it is a general purpose library for lossless compression, which is often used in reallife products.
 
-For those projects we are measuring two things. First we measure how effective our bitwidth saving is, and how much we have saved. In the second case we are trying to compare the assembler with and without the applied optimizations.
+For those projects we are measuring two things. First, how effective our bitwidth saving is and how much we have saved. Second, we are trying to compare the assembler with and without the applied optimizations.
 
 \section{General bitwidth}
 %How much bitwidth the nodes are having in average per function
-A Node itself has a bitwidth usage, if we dont perform our analysis, then we have to assume the code uses the complete bitwidth of a node. Which is the whole data word of a mode.
-The bitwidth of a function then can be described by the average usage of all the nodes. Reason for using the average is, we can compare large functions with smaller ones. However, a small function like FIXME has not as much potential for analyzing its bitwidth, than some bigger function.
+A node in $\libFIRM$ uses a amount of the available bitwidth. We note down the bitwidth of a node as $bitwidth_{irg}(n)$.
+If we don't perform our analysis, then we need to assume the worst case, the node uses all the bits that are available from its mode.
+If the analysis is performed, then we can say that the stable bits of the analysis are defining the bitwidth of a node.
+For comparing the functions directly, we define:
+
+$bitwidth_{irg}(irg) := \frac{\sum\nolimits_{n \in graph.nodes} bitwidth_{irn}(n)}{|graph.nodes|} $ 
+
+We divide the sum by the number of nodes, to be able to compare smaller graphs with bigger ones. 
+
 \paragraph{Const nodes}
 \input{fig/table_const.tex}
-While evaluating the projects, it came up that a normal graph consists of a lot of constant nodes, exact numbers can be found in \autoref{table:amount_const}. The problem with this is, the bitwidth of such a node can be quite low, while it does not matter on the hardware at all, since they are often decoded directly in a hardware instruction, or don't take up any additional space in vhdl. Additionally, calculating how much place a constant takes, is a matter of one log2(...) call. However, we are more interested in what the fixed point iteration safes. Due to the iterations, not based on constant values.
-All in all, constant nodes with small values are basically dragging the average value of a function down, while we don't really find any good upper bound in the graph of a function.
-Thus the statistics are divided into statistics with and without them.
+While evaluating the projects, it came up that a normal graph consists of a lot of constant nodes, exact percentages can be found in the third column of  \autoref{table:amount_const}. 
+
+The problem with a Constant node is, the bitwidth can be quite low. While the constant does not matter on hardware in most cases, since they are decoded directly in a hardware instruction. Additionally they don't take up any additional space in VHDL. 
+
+Calculating how much bitwidth a constant takes is anyway only the matter of a log2(...) call, which is not really interesting to evalulate, in order to see how good the analysis works.
+
+Summed up, Constant nodes are sophisticating the bitwidth of a function a lot. Thus the statistics later are divided into results with and without the constant values.
 
 \paragraph{Project results}
 \input{fig/project_average_bitwidth.tex}
-In \autoref{table:amount_const} the second column is showing the total number of nodes that got created in order to compile the library. This can be used as some sort of complexity metric. What \ref{table:project_average_bitwidth} shows is that the complexity of a library is not  correlated with how much bitwidth can be saved. What we see is that we safe roughly 9 bits in average per node when doing the bitwidth analysis, without constant nodes.Suprisingly the amount of saved bits does not depend on the number of nodes in total.
+In \autoref{table:amount_const} the second column is showing the total number of nodes that got created in order to compile the library. This can be used as some sort of complexity metric. 
+\autoref{table:project_average_bitwidth} shows that all the libraries except \textit{libjpeg} have a similar amount of bitwidth that got saved. However, the amount of saved bitwidth still does not really correlate with the complexity of the projects, since \textit{libgif} is not similar complex to \textit{zlib} or \textit{libpng}.\newline
+We can say that we safe up about 9 bits in average per node.
 
-\section{Optimization assembler improvements}
+\section{Optimization on assembler output}
 
-In this section we compare the shared object files of the library. The first run was done with plain cparser, the second run was done with cparser + the patches created for this work.
-After that the disassembly of the shared object files are compared. However, comparing those two shared object files is quite hard, due to addresses and instruction order changes. Making the comparing easier was possible after removing the address of every line and removing the arguments of the instructions. Loosing the arguments of the instruction makes it hard to compare if something in the calling of the function has changed. However, we can better study the raw changes on the instructions.
+In this section we compare the shared object files of the library. The first run was done with plain cparser, the second run was done with cparser + the patches created for this thesis.\newline
+After that the disassembly of the shared object files are compared. However, comparing those two shared object files is quite hard, due to addresses and instruction order changes. Making the comparing easier was possible after removing the address of every line and removing the arguments of the instructions. Loosing the arguments of the instruction makes it hard to compare if something in the calling of the function has changed. However, we can better study the raw changes on the instructions. What follows is the explanation, how the assembler output changes.
 
 \paragraph{libgif} There was not a single change, the two binary files are identical.
 \paragraph{libjpeg} The assembler output from after the optimization is about 30 instructions longer. The functions don't differ a lot. It looks most of the times like simple reordering of instructions. The amount of additional instructions is caused by instruction duplication, which can be caused by loop unrolling.
@@ -32,8 +45,7 @@ After that the disassembly of the shared object files are compared. However, com
 
 \paragraph{zlib} zlib is similar to libpng. The file gets 3 lines shorter, which is not much. The rest of the binary differences are basically instruction order changes.
 
-The data gathered here can be found at (???).
-Summarizing the results from above. The optimization does not improve image decoding code. 
+The complete repository with the releases and data and scripts can be found at (FIXME)
 
 \section{Optimization vhdl improvements}
 %
