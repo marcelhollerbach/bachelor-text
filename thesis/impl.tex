@@ -129,22 +129,23 @@ This section is about decisions that where made, and why they are made.
 \subsection{Value range vs. bitwidth}
 
 %Where is the actaul difference when looking at the rules.
-The analysis explained in \ref{analysis_explain} is outputting bitwidth informations. The fixpoint iteration uses the set of rules described in \autoref{table_of_rules}. The same analysis could use a set of rules where we don't calculate the bitwidth, but rather the direct range of possible values (Not restricted to $2^x$ form). This is already implemented in \libFIRM, its called value range propagation (VRP).
+The analysis explained in \ref{analysis_explain} is using rules on the nodes that are approximately calculating the bitwidth that is used by the CFG. The same algorithm could use rules that are changing the range, and not the bitwidth. The later would be called value range propagation. The result of both analysis are similar, while the VRP is slightly more accurate in some situations than the Bitwidth analysis. Another justification therefore can be found in ???.
 
-%What are the costs for jumping one bit further
-However, there should be some way to compare both models. We know that every node in $\libFIRM$ has a mode, this mode is defining the length of a data word. The analysis is measuring how many of the bits from this data word are used. So once a node gets marked dirty, there is some sort of delta, like $ \delta = max _{bitwidth}(\textsc{}x) - max _{bitwidth}(\hat{x}) $.
-In case of bitwidth, we know that the delta will have the form of $2^x$. In case of the value range detection, the only assertion we can have is $\delta = 1$.
-Now lets take a graph like ???, where X is some sub graph that performs a operation. Under the assertion that the delta of last node is minimal, then the bitwidth analysis is faster.
-A real life example where this is happening is for example the simple access to a array, like $array[i]$.
-%Sample run on a for / while loop
+However, the paper misses one essential fact. In case of a loop (???) where no assertions can be made, both analysis share the same result. Which is that the nodes will use their whole bitwidth / range. However, the difference between the two analysis here is, that the VRP will need $2^{msb}$ iterations, while the bitwidth analysis only takes $msb$ iterations, where $msb$ expresses the number of the maximum bit. Thus the bitwidth analysis produces the same result, while it's a lot faster.
 
+Another interesting situation is when a Confirm node can be inserted in a loop. If this is the case, then the bitwidth analysis will return $2^{TOP log2(bound) TOP}$ while the VRP would return $log2(bound)$ as the biggest number required by the code. What this shows is, that the VRP here is only more accurate, because the data structure of the bitwidth info operates on bits, while the VRP operates on normal numbers. The runtime here is the same.
 
+\label{VRP_king}
+The only configuration where the VRP returns constantly a more accurate result, is when arithmetical operations are not looping, but are rather used as some sort of tree structure, like it is illustrated in ???. Here the VRP is more accurate, the runtime is the same.
 
 \subsection{Widening \& Narrowing}
-%what is widening / narrowing
-%The idea of widening and narrowing is, that you can make your optimization 
 
-%How are graphs looking like in real world, where is the worst case when comparing vrp to bwa
+Widening and Narrowing is a technique that tries to achieve the same or slightly worse results, by maintaining a better runtime. Here are a few things that could be done in this analysis to achive this. However, the time was short and thus the following is only thought about, but not yet implemented.
 
-%Why is there no big difference between the results of the vrp and the bwa
+\paragraph{Widening not terminating loops}
+There is the theoretical question of when we are able to predict that a loop will terminate before the whole bitwidth is used or not. The question for this analysis is quite simple, if there is a Compare node in the loop, and it is defining a upper bound, then we might find a upper bound when we can insert the confirm node there as described in ???. If there is no Confirm node, and no Compare node, then there is no chance for the loop to terminate. And thus we might want to wide our stable bits to 0.
 
+\paragraph{Narrowing for arithmetical chains}
+As explained in \ref{VRP_king}, the VRP returns a more accurate result for arithmetical chains. A arithmetical chain can be defined as a set of arithmetical nodes, where each node has a successor which is a arithmetical node.
+%explain the problem
+The problem can be fixed, by calculating the result for a arithmetical node as the bitwidth information, as well as the exact range. The successor of the node can then use the exact range instead of the bitwidth info for calculating its results. Thus we end up in the same result as the VRP.
