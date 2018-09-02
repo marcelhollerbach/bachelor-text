@@ -89,31 +89,33 @@ The confirm nodes that we have inserted in the paragraph before can also be tran
 With $\xi(i)$ we can get a set of nodes, where the current state in the analysis is only depending on one node. Thus we can say that the state of every node from $\xi(i)$ will not change as long as the topmost upper element in the tree structure does not change. Which means that we can insert a confirm node between $(e,g)$ for every $e \in \xi(i)$ and $g \in \kappa(e, j)$
 
 \section{Stable Conversion nodes}
-In libfirm a conversion node can be used to convert a value from one mode to another. This type of node has one operand. A conversion like this can have one of two effects. The value stays the same, or the value changes, due to the inability of displaying the value in a different mode. We call the first case \textit{stable conversion node}. A example for a unstable conversion node may look like ($unsigned$)(($int$)-10). A stable conversion node might look like ($unsigned$)(($int$)10).
+In libfirm a conversion node can be used to convert a value from one mode to another. This type of node has one operand. A conversion like this can have one of two effects. The value stays the same, or the value changes, due to the inability of displaying the value in a different mode. We call the first case \textit{stable conversion node}. A example for an unstable conversion node may look like ($unsigned$)(($int$)-10). A stable conversion node may look like ($unsigned$)(($int$)10).
 
 \paragraph{Finding stable conversion nodes}
 Such stable conversion nodes can be found using the bitwidth analysis. We compare the range of the operand with the range of the conversion node itself. If the ranges are the same, then we know that the conversion is stable.
 
 \paragraph{Removing conversion nodes}
 \input{fig/conv_opt.tex}
-In case we found a stable conversion node, then we can say that this node only exists for syntax rules, there is no semantical value in it. Removing those nodes also has the advantage of helping other analyses. The confirm insertion algorithm of libfirm  searches for assertions that can be made based on looking at compare nodes. This works quite well. However, the example in \autoref{fig:example:conversion_opt} does not work
-The insertion code could only insert a Confirm between the Compare and the conversion. However, the Confirm node would need to be a operand of the conversion node, in order to help the rest of the code, since other nodes will likely depend on the operand of the conversion node and not on the conversion node itself. 
-After removing the conversion node, the analysis can find an assertion based on the compare node. This also helps the branch prediction and dead code elimination.
+In case we found a stable conversion node, we can say that this node only exists for syntax rules, there is no semantical value in it. Removing those nodes also has the advantage of helping other analyses. 
+The confirm insertion algorithm of $\libFIRM$  searches for assertions that can be made based on looking at compare nodes. This works quite well. However, the example in \autoref{fig:example:conversion_opt} does not work.
+The insertion code could only insert a Confirm between the Compare and the conversion. However, the Confirm node would need to be an operand of the conversion node, in order to help the rest of the code, since other nodes will likely depend on the operand of the conversion node and not on the conversion node itself. 
+After removing the conversion node, the analysis can find an assertion based on the compare node. This could help the branch prediction and dead code elimination.
 
 However, for really removing the conversion nodes, we need to find situations where we can eliminate the conversion node. We have already seen an example with a compare node. Additionally we can do the same with an arithmetical operation.
 
 \paragraph{Compare-Conversion optimization}
-The rule in $\libFIRM$ is that the two operands of a compare node have to have the same mode. This means, when we remove the conversion node, we also need to adjust the mode of the second operand. This is not easily possible for something that is not a constant, thus we confine for now that the two operands need to be a conversion and a constant node.
-With the assertion that our second operand is a constant, we can simply adjust its mode, and remove the conversion.
+The rule in $\libFIRM$ is that the two operands of a compare node have to have the same mode. This means, when we remove the conversion node, we also need to adjust the mode of the second operand. This is not easily possible for a none-Constant node.
+Thus we confine for now that the the operand needs to be a Conversion node, and the second one a Constant node. With this we can simple adjust its mode, and remove the conversion.
 
 \paragraph{Arithmetical-Conversion optimization}
 \input{fig/arith_conv.tex}
-A other situation where we can optimize the conversion nodes are arithmetical operations, where one operand is again constant. In this case we don't really remove the conversion node, instead we move it through the arithmetical operation, and place it afterwards. We do this and hope that we can remove it with a compare conversion optimization after that.
+The situation of arithmetical nodes, with one operation being constant, one operation  being a conversion, can also be optimized. In this case we move it through the arithmetical operation, and place it afterwards. In the same time we change the mode of the constant and the arithmetical node to the earlier node. We do this in order to hope that we can remove it with a compare conversion optimization after that.
 Such a construct might look like \autoref{fig:example:arithmetical_opt} . After we adjusted the mode of the constant we can move the conversion from the operand of the arithmetical operation to the end.
+
 \section{VHDL generation}
 
-There is a $\libFIRM$ tool called firm2vhdl. The tool takes the output from the \textit{cparser} compiler, and outputs the VHDL. Every node in the firm graph gets transformed into an VHDL statement. This is done by transforming the operation of the nodes into vhdl code, each result of a node operation is assigned to a new variable. Which then can be used again later by the next operation. 
-Each of those those variables are represented in hardware, and thus have an amount of bits. The maximum amount of bits that is needed, can be calculated by using the bitwidth analysis.
+There is a $\libFIRM$ tool called firm2vhdl. The tool takes the output from the \textit{cparser} compiler, and outputs the VHDL. Every node in the firm graph gets transformed into a VHDL statement. This is done by transforming the operation of the nodes into VHDL code. Each result of a node operation is assigned to a new variable, which then can be used again later by the next operation. 
+Each of those those variables are represented in hardware, and thus have an certain amount of bits. The maximum amount of bits that is needed, can be calculated by using the bitwidth analysis.
 
 \paragraph{bitwidth in firm2vhdl}
 The amount of bits per variable were previously just the amount of bits the mode of a node needs. In VHDL this wastes a lot of space on the FPGA chip later on. Minimizing the amount of bits used per variable here can be important, since most of the variables used in C do not use the complete bitwidth.\newline
