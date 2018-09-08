@@ -49,7 +49,9 @@ The complete repository with the releases and data and scripts can be found at \
 
 \section{Optimization vhdl improvements}
 
-We use a simple C snipped for evaluating the VHDL generation improvements. The C snipped can be found at FIXME. After the C snipped was compiled into VHDL, the Xilinx Vivado 2018.2 IDE for FPGA generation was used to compile the VHDL code into a bitstream. Due to some discoveries with Vivado, a second try was done to compile the VHDL with Quartus. Quartus is a FPGA SDK from Intel Altera.
+\input{fig/code_snippet.tex}
+
+We use a simple C snipped for evaluating the VHDL generation improvements. The C snipped can be found at \autoref{code:workflow:example}. After the C snipped was compiled into VHDL, the Xilinx Vivado 2018.2 IDE for FPGA generation was used to compile the VHDL code into a bitstream. Due to some discoveries with Vivado, a second try was done to compile the VHDL with Quartus. Quartus is a FPGA SDK from Intel Altera.
 
 \paragraph{Vivado}
 In Vivado two projects of the same kind have been created, one with the VHDL file without the improved \textit{ir2vhdl} tool, one with them. Both projects have been using the Kintex UltraScale+ xcku5p device. After the syntesis was running on both projects we took the statistic table from the report. We compared the number of LUTs and Registers. 
