@@ -1,17 +1,20 @@
 \chapter{Introduction}\label{sec:intro}
 
-The problem to solve is called bitwidth analysis.
-The bitwidth with a data word can be seen as the bits that are actually used in the runtime of the source code. Lets take the following example:
+The analysis that is implemented in this thesis is called bitwidth analysis.
+The initial idea of the analysis is to annotate every operation with the bitwidth it requires. The following C snippet is formated a bit unlikely in order to make it easier to annotate.
 \begin{lstlisting}[frame=single]
 int arr[4];
 
 for (int i = 0; i < 4; i++) {
-  int res = (i << 4) + i*i; 
+  //i requires 3 bits
+  int x = i*i; //x requires 6 bits
+  int y = (i << 4); //y requires 7 bits
+  int res = x + y; //res requires 8 bits
   arr[i] = res;
 }
 \end{lstlisting}
-
-After running the bitwidth analysis, every operation has a attached information structure which indicates how many bits are actually used by the code. The developed algorithm applied to the the code results in something like this:
-\linebreak
-$ i \in {0..3}$;
-$ res \in {0..90}$; 
+Every Operation changes its bitwidth according to its operands. The required bits per operation are annotated as comment after the operation.
+How exactly the bitwidth of a operation is calculated will be covered in the later chapters.
+The Information gathered from the analysis then can be used for optimizing the compiler output. This can happen here on two levels, the compiler we use here can be used to output a hardware descriptive language call VHDL. This output can be optimized to have a more compact memory layout, since the variables in the software can be brought into exactly the size they need to be to correctly work, while not wasting space.
+The other compiler output is assembler output, which can also be optimized. If those optimizations are successful and really safe up resources can be found in the later sections.
+s

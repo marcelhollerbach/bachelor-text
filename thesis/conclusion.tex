@@ -4,7 +4,20 @@
 The previous chapter showed that the optimizations are not that helpful on decoder code. This thesis was done for evaluating decoder code, so no others projects have been checked. However, other projects like direct UI or CLI implementations also could be evaluated, since the patterns from decoding code are quite different to ui codes. Without evaluating others, we can say, that the optimization for dropping conversion nodes from the graph is not that helpful.
 
 \section{vhdl generation}
-
+Its similar to the assembler generation. There is no obvious improvement over the not optimized VHDL code. However, its very hard to see real differences due to the inability to understand the real differences in the bitstream. A open bitstream standard would help here, since the projects then could be compared on the lowest possible hardware layer.
 \section{Further improvements}
+\subsection{Widening \& Narrowing}
+
+Widening and Narrowing is a technique that tries to achieve the same or slightly worse results, by maintaining a better runtime. Here are a few things that could be done in this analysis to achive this. However, the time was short and thus the following is only thought about, but not yet implemented.
+
+\paragraph{Widening not terminating loops}
+There is the theoretical question of when we are able to predict that a loop will terminate before the whole bitwidth is used or not. The question for this analysis is quite simple, if there is a Compare node in the loop, and it is defining a upper bound, then we might find a upper bound when we can insert the confirm node there as described in ???. If there is no Confirm node, and no Compare node, then there is no chance for the loop to terminate. And thus we might want to wide our stable bits to 0.
+
+\paragraph{Narrowing for arithmetical chains}
+As explained in \ref{VRP_king}, the VRP returns a more accurate result for arithmetical chains. A arithmetical chain can be defined as a set of arithmetical nodes, where each node has a successor which is a arithmetical node.
+%FIXME explain the problem
+The problem can be fixed, by calculating the result for a arithmetical node as the bitwidth information, as well as the exact range. The successor of the node can then use the exact range instead of the bitwidth info for calculating its results. Thus we end up in the same result as the VRP.
 
 \section{Additional analyzer usage}
+\paragraph{More conversion nodes}
+In this thesis we looked at removing the conversion nodes where we can. However, in some situations it might makes sense to insert more conversion nodes where most of a mode is not used, and thus the reduction to a smaller mode would be possible. This might enables the compiler to better use the available registers. As an example, a simple for loop might only iterate in the ranges of a 8 bit number. And thus the 8 bit registers of the hardware could be used instead of the bigger 32 bit registers. A additional situation where this might makes sense is a shift operation on 32bit systems , as a long shift is very complex on a 32 bit architecture, and might not be required.

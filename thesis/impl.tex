@@ -33,7 +33,7 @@ $
 
 \paragraph{Analysis}
 \label{analysis_explain}
-The analysis works as a fixed point iteration. For it we use  \autoref{fig:lattice} as lattice. The values of the lattice represent the tuples from the analysis.
+The analysis works as a fixed point iteration, implemented with the work list approach. For it we use  \autoref{fig:lattice} as lattice. The values of the lattice represent the tuples from the analysis.
 
 As a first step, we iterate over every single node and initialize the node with $\top$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
 
@@ -131,6 +131,8 @@ This section is about decisions that where made, and why they are made.
 %Where is the actaul difference when looking at the rules.
 The analysis explained in \ref{analysis_explain} is using rules on the nodes that are calculating the bitwidth that is used by the CFG. The same algorithm could use rules that are changing the range, and not the bitwidth. The later would be called value range propagation. The result of both analysis are similar, while the VRP is slightly more accurate in some situations than the bitwidth analysis. A master thesis from MIT (\cite{bitwidthanalysis-mit-vrp}) is also claiming the same.
 
+%FIXME different loops
+
 However, the thesis misses one essential fact. In case of a loop (???) where no assertions can be made, both analysis share the same result. Which is that the nodes will use their whole bitwidth / range. However, the difference between the two analysis here is, that the VRP will need $2^{msb}$ iterations, while the bitwidth analysis only takes $msb$ iterations, where $msb$ expresses the number of the maximum bit. Thus the bitwidth analysis produces the same result, while it's a lot faster.
 
 Another interesting situation is when a Confirm node can be inserted in a loop. If this is the case, then the bitwidth analysis will return $2^{TOP log2(bound) TOP}$ while the VRP would return $log2(bound)$ as the biggest number required by the code. What this shows is, that the VRP here is only more accurate, because the data structure of the bitwidth info operates on bits, while the VRP operates on normal numbers. The runtime here is the same.
@@ -138,14 +140,3 @@ Another interesting situation is when a Confirm node can be inserted in a loop. 
 \label{VRP_king}
 The only configuration where the VRP returns constantly a more accurate result, is when arithmetical operations are not looping, but are rather used as some sort of tree structure, like it is illustrated in ???. Here the VRP is more accurate, the runtime is the same.
 
-\subsection{Widening \& Narrowing}
-
-Widening and Narrowing is a technique that tries to achieve the same or slightly worse results, by maintaining a better runtime. Here are a few things that could be done in this analysis to achive this. However, the time was short and thus the following is only thought about, but not yet implemented.
-
-\paragraph{Widening not terminating loops}
-There is the theoretical question of when we are able to predict that a loop will terminate before the whole bitwidth is used or not. The question for this analysis is quite simple, if there is a Compare node in the loop, and it is defining a upper bound, then we might find a upper bound when we can insert the confirm node there as described in ???. If there is no Confirm node, and no Compare node, then there is no chance for the loop to terminate. And thus we might want to wide our stable bits to 0.
-
-\paragraph{Narrowing for arithmetical chains}
-As explained in \ref{VRP_king}, the VRP returns a more accurate result for arithmetical chains. A arithmetical chain can be defined as a set of arithmetical nodes, where each node has a successor which is a arithmetical node.
-%explain the problem
-The problem can be fixed, by calculating the result for a arithmetical node as the bitwidth information, as well as the exact range. The successor of the node can then use the exact range instead of the bitwidth info for calculating its results. Thus we end up in the same result as the VRP.
