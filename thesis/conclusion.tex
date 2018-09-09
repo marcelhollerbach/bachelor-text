@@ -15,7 +15,9 @@ There is the theoretical question of when we are able to predict that a loop wil
 
 \paragraph{Narrowing for arithmetical chains}
 As explained in \ref{VRP_king}, the VRP returns a more accurate result for arithmetical chains. A arithmetical chain can be defined as a set of arithmetical nodes, where each node has a successor which is a arithmetical node.
-%FIXME explain the problem
+
+The problem with arithmetical operations is within the bitwidth analysis is, is that we need to calculate the worst case in terms of bit usage. As an example, two operands with the ranges $[0..2]$ and $[0..4]$ will result in the range $[0..6]$. However, we are in a bitwidth analysis here, which means the ranges here are always rounded up to the next power of two. This means for our example, that the two operands will have the same ranges, but the result of the addition will be $[0..8]$. In higher bit ranges, the lose is even bigger.
+
 The problem can be fixed, by calculating the result for a arithmetical node as the bitwidth information, as well as the exact range. The successor of the node can then use the exact range instead of the bitwidth info for calculating its results. Thus we end up in the same result as the VRP.
 
 \section{Additional analyzer usage}
