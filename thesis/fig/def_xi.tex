@@ -1,11 +1,30 @@
 \begin{figure}
 	\centering
-	\begin{tikzpicture}[scale=.7]
-		\node[inner sep=0pt] (russell) at (0,0){
-			\includegraphics[width=.25\textwidth]{fig/def_xi.png}
+	\begin{tikzpicture}
+		\node[graph]{
+			\begin{tikzpicture}[remember picture]
+				\node[block] (startblock) {
+					\begin{tikzpicture}
+
+
+						\node[firm]    (const1) at (3,3) {Const};
+						\node[firm]    (const2) at (3,2) {Const};
+						\node[firm]    (mul)    at (1,2) {Mul};
+						\node[firm]    (add)    at (1,1) {Add};
+						\node[firm]    (sub)    at (0,0) {Sub};
+
+						\draw[dataDependency]    (sub.60)      -- ++(0,0.1) -| (add);
+						\draw[dataDependency]    (sub.north)   -- ++(0,0.1) -| (-0,3);	
+						\draw[dataDependency]    (add.north)     -- ++(0,0.1) -| (mul);
+						\draw[dataDependency]    (add.60)      -- ++(0,0.1) -| (const2);
+						\draw[dataDependency]    (mul.60)     -- ++(0,0.1) -| (const1);
+						\draw[dataDependency]    (mul.north)   -- ++(0,0.1) -| (1,3);
+
+					\end{tikzpicture}
+				};
+			\end{tikzpicture}
 		};
 	\end{tikzpicture}
-%FIXME
 \caption{Definition of xi}
 \label{fig:def:xi}
 \end{figure}
