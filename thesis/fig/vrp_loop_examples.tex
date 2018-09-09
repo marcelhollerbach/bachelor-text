@@ -1,0 +1,60 @@
+\begin{figure}
+	\centering
+
+	\hfill
+	\subfloat[Loop configuration where no assertion is possible]{\label{fig:loop_no_assertions}
+	\begin{tikzpicture}
+		\node[graph]{
+			\begin{tikzpicture}[remember picture]
+				\node[block] (startblock) {
+					\begin{tikzpicture}
+						\node[firm]    (const0) at (0,2) {Const : 0};
+						\node[phi]     (phi)    at (-1,1) {Phi};
+						\node[firm]    (const1) at (1,1) {Const : 1};
+						\node[firm]    (add)    at (0,0) {Add};
+						
+						\draw[dataDependency]    (add.60)     -- ++(0,0.1) -| (const1);
+						\draw[dataDependency]    (add.120)    -- ++(0,0.1) -| (phi);
+						\draw[dataDependency]    (phi.60)     -- ++(0,0.1) -| (const0);
+						\draw[dataDependency]    (phi.120)    -- ++(0,0.1) -- ++(-1,0) -- ++(0,-2) -| (add);
+					\end{tikzpicture}
+				};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+	}
+	\hfill
+	\subfloat[Loop configuration where a assertion is possible]{\label{fig:loop_assertions}
+	\begin{tikzpicture}
+		\node[graph]{
+			\begin{tikzpicture}[remember picture]
+				\node[block] (startblock) {
+					\begin{tikzpicture}
+					\node[firm]    (const0) at (0,2) {Const : 0};
+					\node[phi]     (phi)    at (-1,1) {Phi};
+					\node[firm]    (const1) at (1,1) {Const : 1};
+					\node[firm]    (add)    at (0,0) {Add};
+					\node[firm]    (cmp)        at ( 0,-1) {Cmp less\_equal};
+					\node[control] (cond)       at ( 0,-2) {Cond};
+					\node[control] (false)      at (-1,-3) {False};
+					\node[control] (true)       at ( 1,-3) {True};
+					
+					\draw[dataDependency]    (add.60)      -- ++(0,0.1) -| (const1);
+					\draw[dataDependency]    (add.120)     -- ++(0,0.1) -| (phi);
+					\draw[dataDependency]    (phi.60)      -- ++(0,0.1) -| (const0);
+					\draw[dataDependency]    (phi.120)     -- ++(0,0.1) -- ++(-1,0) -- ++(0,-2) -| (add.240);
+					\draw[dataDependency]    (cmp.62)     --              (add.300);
+					\draw[dataDependency]    (cond)        --              (cmp);
+					\draw[controlDependency] (false.north) -- ++(0,0.1) -| (cond.240);
+					\draw[controlDependency] (true.north)  -- ++(0,0.1) -| (cond.300);
+					
+					\end{tikzpicture}
+				};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+	}
+	\hfill
+	\caption{Possible loop configurations}
+\label{fig:vrp_loop_examples}
+\end{figure}
