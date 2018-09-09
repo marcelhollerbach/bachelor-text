@@ -1,0 +1,26 @@
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\node[graph]{
+			\begin{tikzpicture}[remember picture]
+				\node[block] (startblock) {
+					\begin{tikzpicture}
+					\node[firm]    (add1)    at (-2,2) {Add};
+					\node[firm]    (add2)    at (0,2) {Add};
+					\node[firm]    (mul)    at (-1,1) {Mul};
+					\node[firm]    (const3) at (1,1) {Const};
+					\node[firm]    (sub)    at (0,0) {Sub};
+					
+					\draw[dataDependency]    (mul.60)      -- ++(0,0.1) -| (add2);
+					\draw[dataDependency]    (mul.120)      -- ++(0,0.1) -| (add1);
+					\draw[dataDependency]    (sub.60)      -- ++(0,0.1) -| (const3);
+					\draw[dataDependency]    (sub.120)      -- ++(0,0.1) -| (mul);
+					
+					\end{tikzpicture}
+				};
+			\end{tikzpicture}
+		};
+	\end{tikzpicture}
+	\caption{Possible loop configurations}
+\label{fig:arithmetical_chains}
+\end{figure}

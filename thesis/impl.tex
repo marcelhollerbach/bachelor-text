@@ -138,6 +138,7 @@ However, the thesis misses one essential fact. In case of a loop like \ref{fig:l
 
 Another interesting situation is when a Confirm node can be inserted in a loop (See \ref{fig:loop_assertions}). If this is the case, then the bitwidth analysis will return $2^{TOP log2(bound) TOP}$ while the VRP would return $log2(bound)$ as the biggest number required by the code. What this shows is, that the VRP here is only more accurate, because the data structure of the bitwidth info operates on bits, while the VRP operates on normal numbers. The runtime here is the same.
 
+\input{fig/arithmetical_chains.tex}
 \label{VRP_king}
-The only configuration where the VRP returns constantly a more accurate result, is when arithmetical operations are not looping, but are rather used as some sort of tree structure, like it is illustrated in ???. Here the VRP is more accurate, the runtime is the same.
+The only configuration where the VRP returns constantly a more accurate result, is when arithmetical operations are not looping, but are rather used as some sort of tree structure, like it is illustrated in \ref{fig:arithmetical_chains}. Here the VRP is more accurate, the runtime is the same.
 
