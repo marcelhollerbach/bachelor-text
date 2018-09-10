@@ -82,12 +82,13 @@ There are a few mathematical basics, which are known to be useful for performing
 A lattice is a algebra structure. For a lattice $V$, there are the following rules:
 
 \begin{itemize}
-	\item the height of V must be $\infty$
 	\item $\sqcup: V \times V \rightarrow V$ returns the smallest element, that is bigger or equal than the two operands
 	\item $\sqcap: V \times V \rightarrow V$ returns the biggest element, that is smaller or equal than the two operands
 %	\item $\forall a,b \in V : \exists a \sqcup b \wedge \exists a \sqcap b$
 	\item $\forall u,v \in V : u \sqcup ( u \sqcap v) = v \wedge u \sqcap ( u \sqcup v ) = v$
 \end{itemize}
+
+Additionally we add te requirement of $|V| \not= \infty$. This is not a requirement for lattices in general. However, for fixed point iterations this requirement is precise enough.
 
 The element, which is the least of all elements, is called $\bot$. The greatest of all is called $\top$. A lattice can also be made visible in a Hesse diagram, which you can see in \autoref{fig:lattice}
 
