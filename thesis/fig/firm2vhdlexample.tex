@@ -1,0 +1,33 @@
+\newsavebox{\ccode}
+\begin{lrbox}{\ccode}% Store first listing
+\begin{lstlisting}
+int op(char i, char y) {
+	return (int)i + y;
+}
+\end{lstlisting}
+\end{lrbox}
+
+\newsavebox{\opt}
+\begin{lrbox}{\opt}% Store first listing
+	\begin{tabular}{ l c c }
+		node & unoptimized & optimized \\ 
+		\hline
+		node230 & 8 & 3  \\
+		node231 & 32 & 6  \\
+		node228 & 8 & 9 \\
+		node229 & 32 & 9 \\
+		node232 & 32 & 9 \\
+	\end{tabular}
+\end{lrbox}
+
+
+\begin{figure}
+	\centering
+	\hfill
+	\subfloat[Sample c code]{\label{fig:firm2vhdl-sample}\usebox{\ccode}}
+	\hfill
+	\subfloat[VHDL variable declaration  unoptimized]{\label{fig:firm2vhdl-table}\usebox{\opt}}
+	\hfill
+\label{fig:vrp_loop_examples}
+\caption{firm2vhdl example}
+\end{figure}

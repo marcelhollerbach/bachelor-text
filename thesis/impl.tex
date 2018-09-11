@@ -121,8 +121,8 @@ Each of those those variables are represented in hardware, and thus have an cert
 \paragraph{bitwidth in firm2vhdl}
 The amount of bits per variable were previously just the amount of bits the mode of a node needs. In VHDL this wastes a lot of space on the FPGA chip later on. Minimizing the amount of bits used per variable here can be important, since most of the variables used in C do not use the complete bitwidth.\newline
 The bitwidth information gathered from the analysis can help here, as it defines how many bits of a node are used, and how many are not. Thus we can add code to the transformation, for taking the bitwidth, instead of the number of bits in a mode.
-
-%FIXME example
+\input{fig/firm2vhdlexample.tex}
+As an example, the C code from \ref{fig:firm2vhdl-sample} can be compiled with the tool. Without the optimization the 5 created nodes will have the bit numbers from the first column in \ref{fig:firm2vhdl-table}. However, after we applied out bitwidth analysis, we have the bit usages from the last column in \ref{fig:firm2vhdl-table}. 
 
 \section{How about section}
 This section is about decisions that where made, and why they are made.
