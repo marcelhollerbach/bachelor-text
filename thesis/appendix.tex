@@ -1,5 +1,58 @@
-\chapter{Sonstiges}
+\chapter{Appendix}
 
 \section{Table of node rules}
 
 \label{table_of_rules}
+
+A operation has operands, all of them are referred to as \textit{operands}, the first is called \textit{a}, the second is called \textit{b}. In the first column the formula for the new stable digits is displayed. The second column is the formula for the is\_positive flag. $n_{stable}$ is used in the second column to refer to the value calculated in the first column.
+
+\begin{tabular}{ l | c | c }
+	op & used bits & is\_positive \\
+	\hline
+	add & $max(min(a_{stable}, b_{stable}) - 1, 0)$ & $a_{positive} \wedge b_{positive} \wedge n_{stable} > 0 $\\
+	minus &  $max(a_{stable} - 1, 0) $ & $\textit{false}$\\
+	sub &  $max(min(a_{stable}, b_{stable}) - 1, 0) $ & $\textit{false}$\\
+	mul &  $max(b - mode + a_{stable}, 0)  $ & $a_{positive} \wedge b_{positive} \wedge n_{stable} > 0 $\\
+	div &  
+	$ 
+	\left\{
+	\begin{array}{l}
+	a_{stable}\\ 
+    max(a_{stable} - 1, 0)
+	\end{array}
+	\begin{array}{l}
+	, mode\text{ is signed} \\ 
+	, \text{otherwise}.
+	\end{array}
+	\right.$
+	& $a_{positive} \wedge b_{positive} \wedge n_{stable} > 0 $ \\
+	mod &  & \\
+	\hline
+	shl & $a_{stable} - b_{stable}  $& 
+	$ 
+	\left\{
+	\begin{array}{l}
+	a_{positive}\\ 
+	\text {false}
+	\end{array}
+	\begin{array}{l}
+	, n_{stable} > 0 \\ 
+	, \text{otherwise}.
+	\end{array}
+	\right.$
+	 \\
+	shr & $a_{stable} + b_{stable}  $& $\textit{true}$\\
+	shrs & $a_{stable} + b_{stable}  $& $a_{positive}$\\
+	\hline
+	conv &  $ max(a_{stable} + (mode - old\_mode), 0)  $ & $a_{positive} \wedge n_{stable} > 0 $\\
+	\hline
+	$
+	\begin{array} {l}
+        \text{max} \\
+        \text{phi} \\
+        \text{and} \\
+        \text{eor} \\
+        \text{or} \\
+	\end{array}$ & $min(operands)$ & $\bigwedge(operands_{positive})$ \\
+	\hline
+\end{tabular}
