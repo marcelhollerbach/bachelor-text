@@ -1,11 +1,22 @@
 \begin{figure}
 	\centering
 	\begin{tikzpicture}[scale=.7]
-		\node[inner sep=0pt] (russell) at (0,0){
-			\includegraphics[width=.25\textwidth]{fig/arithmetical_opt.png}
+		\node[graph]{
+			\begin{tikzpicture}[remember picture]
+				\node[block] (startblock) {
+					\begin{tikzpicture}		
+						\node[firm]    (const) at (-1,1) {Const};
+						\node[firm]    (conv) at (1,1) {Conv};
+						\node[firm]    (add)    at (0,0) {Add};
+						
+						\draw[dataDependency]    (conv.north)    -- ++(0,0) -| (1,2);	
+						\draw[dataDependency]    (add.120)  -- ++(0,0.1) -| (const);
+						\draw[dataDependency]    (add.60) -- ++(0,0.1) -| (conv);
+					\end{tikzpicture}
+				};
+			\end{tikzpicture}
 		};
 	\end{tikzpicture}
-%FIXME
 \caption{Arithmetical optimization example}
 \label{fig:example:arithmetical_opt}
 \end{figure}
