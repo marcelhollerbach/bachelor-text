@@ -1,6 +1,8 @@
 \chapter{Introduction}\label{sec:intro}
 
-The analysis that is implemented in this thesis is called bitwidth analysis.
+Projects like \textit{libva} have made the first step into the direction of hardware accelerated video decoding on a computer system. These projects provide standardized access to decoding video streams like MPEG-2, H.264/AVC, H.265/HEVC, VP8, VP9, VC-1. The project itself handles the passing and messaging from a front end application like a video player, to the driver itself. The driver itself then answers the calls from the API. And the decoded picture goes back to the front end application. However, the driver itself still needs to do the decoding on its side. Usually implemented in hardware, since this is resulting in the best performance. The amount of work needed for implementing such a decoder for MPEG-2 can be observed while reading \cite{mpeg2-modelling}.
+Thus it would be nice if software that gets written in C, can also be adopted to work directly on hardware. As an example, a C library which does decoding of MPEG-2 could just share its decoding code with a Hardware Description Language. There are techniques for doing this. However, they suffer from a lag of performance.
+This thesis tries to improve the speed of such code by reducing the used bits of the software. The solution has two pieces, an analysis and a optimization.
 The initial idea of the analysis is to annotate every operation with the bitwidth it requires. The following C snippet is formated a bit unlikely in order to make it easier to annotate.
 \begin{lstlisting}[frame=single]
 int arr[4];
@@ -13,10 +15,7 @@ for (int i = 0; i < 4; i++) {
   arr[i] = res;
 }
 \end{lstlisting}
-Every Operation changes its bitwidth according to its operands. The required bits per operation are annotated as comment after the operation.
+Every operation has a bitwidth. The bitwidth is the number of bits that is used by the operation, as maximum the modes amount of bits is used. The required bits per operation are annotated as comment after the operation.
 How exactly the bitwidth of a operation is calculated will be covered in the later chapters.
-The Information gathered from the analysis then can be used for optimizing the compiler output. This can happen here on two levels, the compiler we use here can be used to output a hardware descriptive language call VHDL. This output can be optimized to have a more compact memory layout, since the variables in the software can be brought into exactly the size they need to be to correctly work, while not wasting space.
+The information gathered from the analysis is then used for optimizing the compiler output. The optimization here can happen at two layers. The compiler we use here can be used to output a hardware description language called VHDL. This output will be optimized to have a more compact memory layout.
 The other compiler output is assembler output, which can also be optimized. If those optimizations are successful and really safe up resources can be found in the later sections.
-
-On a more practical side, projects like \textit{libva} have made the first step into the direction of hardware accelerated video decoding on a computer system. These projects provide standardized access to decoding video streams like MPEG-2, H.264/AVC, H.265/HEVC, VP8, VP9, VC-1. The project itself handles the passing and messaging from a front end application like a video player, to the driver itself. The driver itself then answers the calls from the API. And the decoded picture goes back to the front end application. However, the driver itself still needs to do the decoding on its side. Usually implemented in hardware, since this is resulting in the best performance. The amount of work needed for implementing such a decoder for MPEG-2 can be observed while reading \cite{mpeg2-modelling}.
-Thus it would be nice if software that gets written in c, can also be adopted to work directly on hardware. As an example, a C library which does decodig of MPEG-2 could just share its decoding code with such a hardware layer, and thus be speeded up. Therefore a technique for improving VHDL code is presented later on.
