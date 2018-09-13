@@ -35,7 +35,7 @@ $
 \label{analysis_explain}
 The analysis works as a fixed point iteration, implemented with the work list approach. For it we use  \autoref{fig:lattice} as lattice. The values of the lattice represent the tuples from the analysis.
 
-As a first step, we iterate over every single node and initialize the node with $\top$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
+As a first step, we iterate over every single node and initialize the node with $\bot$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
 
 The second step consists of recalculating every \textit{dirty} node in the graph. 
 if the stable bits of $x$ are smaller than those from $\hat{x}$, 

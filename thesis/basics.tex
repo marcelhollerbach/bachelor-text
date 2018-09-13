@@ -72,11 +72,11 @@ The term \textit{mode} is used to describe integer-modes for the rest of this th
 
 \section{Mathematical theory}
 
-There are a few mathematical basics, which are known to be useful for performing compiler analysis. The first basic is lattice. A lattice can be useful for comparing elements, which are not directly comparable. The second basic is the fixed point iteration.
+There are a few mathematical basics which are known to be useful for performing compiler analysis. The first basic is the lattice. The second basic is the fixed point iteration.
 
 \subsection{Lattice}
 
-A lattice is a algebra structure. For a lattice $V$, there are the following rules:
+A lattice is an algebraic structure. For a lattice $L=(V,\sqcup,\sqcap)$, there are the following rules:
 
 \begin{itemize}
 	\item $\sqcup: V \times V \rightarrow V$ returns the smallest element, that is bigger or equal than the two operands
@@ -87,7 +87,7 @@ A lattice is a algebra structure. For a lattice $V$, there are the following rul
 
 Additionally we add te requirement of $|V| \not= \infty$. This is not a requirement for lattices in general. However, for fixed point iterations this requirement is precise enough.
 
-The element, which is the least of all elements, is called $\bot$. The greatest of all is called $\top$. A lattice can also be made visible in a Hesse diagram, which you can see in \autoref{fig:lattice}
+The element, which is the least of all elements is called $\bot$. The greatest of all is called $\top$. A lattice can also be written down as a Hesse diagram, which can be seen in \autoref{fig:lattice}
 
 A more detailed introduction can be found in \cite{lattice_theory}.
 
@@ -98,12 +98,12 @@ For iterating we start with the minimum of D. We define $y_0=f(min(D))$, $y_i=f(
 
 %\paragraph{Prove}$f$ is continuous, this means $\forall x >= y: f(x) >= f(y)$. So we know that $f(x) = y$ where $y > x$. Or $f(x) = x$, which means that we found a fixed point. However, the first case can only happen a finite amount of times, since $|D| \not= \infty$. Thus there has to exist a fixed point.
 
-\paragraph{Fixed points in compiler analysis}
-We can transform and use the fixed point iteration to be working on a CFG. For the following we define additionally:
+\paragraph{Data flow analysis}
+We can adapt the fixed point iteration to work on a CFG. For the following we define additionally:
 \begin{itemize}
-	\item CFG is called $(G,V,E)$
+	\item CFG is called $G=(V,E)$
 	\item The lattice we use is called $L$
-	\item $f _{node}:L \rightarrow L$ As the function for iterating on a single node. $f _{node}$ is continuous.
+	\item $f _{node}:L \rightarrow L$ is the function for iterating on a single node. $f _{node}$ is monotonous.
 	\item $D$ is a set, where we can say that: $\forall d \in D: d = \{(0, v_0), ... , (n, v_n)\}$
 	\item $f(d) := \{(id, \hat{v})| (id, v) \in d \wedge f _{node}(v) = \hat{v}\}$
 \end{itemize}
