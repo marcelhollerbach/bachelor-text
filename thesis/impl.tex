@@ -8,23 +8,29 @@ Since this is a data flow analysis, which is built on an iterative approach. We 
 
 \paragraph{Bit representation}
 The stable bits indicate how many bits are stable, and therefore not used.
-The second value of the tuple indicates if the value will ever reach negative numbers or not. Thus it indicates at least one stable bit at the highest position. However, the second value is only meaningful for modes that allow signs.
+The second value of the tuple indicates if the value will ever reach negative numbers or not. Thus it indicates at least one stable bit at the highest position. However, the second value is only meaningful for modes that allow signs. We note down the stable bits of a node as $stable_nodes(n)$.
+Sometimes we don't want to have the used bits instead of the stable bits, in this case we note the result as:
+$
+used\_bits(n):=mode\_bits(n)-stable\_bits(n)
+$
+
+Where $mode\_bits$ expresses the amount of bits per node.
 
 \paragraph{Range representation}
 There is also a second way of interpreting the two values. The stable bits can define a minimum and maximum range. The maximum number is reached if the stable bits are all zero, and the rest one. If the mode is signed and the node is not positive, then the minimum number is reached by assuming all stable bits are one, and the rest zero. Otherwise the minimum is 0. We can define the following min max definitions for the ranges:
 
 $
-max_{bitwidth}(x)=
+max_{bitwidth}(n)=
 \left\{
-\begin{array}{l}2^{stable\_digits-1}-1\\2^{stable\_digits}-1\end{array}
+\begin{array}{l}2^{used\_bits(n)-1}-1\\2^{used\_bits(n)}-1\end{array}
 \begin{array}{l} {mode.signed} \\ {Otherwise} \end{array}
 \right.
 $
 
 $
-min_{bitwidth}(x)=
+min_{bitwidth}(n)=
 \left\{
-\begin{array}{l}2^{stable\_digits-1}\\0\end{array}
+\begin{array}{l}2^{used\_bits(n)-1}\\0\end{array}
 \begin{array}{l} {mode.signed \wedge is\_positive} \\ {Otherwise} \end{array}
 \right.
 $
