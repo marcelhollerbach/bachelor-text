@@ -56,3 +56,28 @@ A operation has operands, all of them are referred to as \textit{operands}, the 
 	\end{array}$ & $min(operands)$ & $\bigwedge(operands_{positive})$ \\
 	\hline
 \end{tabular}
+\section{Evaluation C source code}
+\begin{figure}
+	\centering
+	\begin{lstlisting}[frame=single]
+	uint32_t test_atom(uint32_t input0, uint32_t input1) {
+	int16_t inp0, inp1, inp2, inp3,
+	abs0, abs1, abs2, abs3;
+	#define ABS(x) ( x<0 ? -x : x )
+	
+	inp0 = input0;
+	inp1 = input0 >> 16;
+	inp2 = input1;
+	inp3 = input1 >> 16;
+	
+	abs0 = ABS(inp0);
+	abs1 = ABS(inp1);
+	abs2 = ABS(inp2);
+	abs3 = ABS(inp3);
+	return abs0 + abs1 + abs2 + abs3;
+	}
+	
+	\end{lstlisting}
+	\caption{Test code for measuring VHDL generation improvements}
+	\label{code:vhdl-eval}
+\end{figure}

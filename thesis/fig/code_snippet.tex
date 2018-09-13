@@ -1,25 +1,20 @@
+
 \begin{figure}
 	\centering
-	\begin{lstlisting}[frame=single]
-{
-	int16_t inp0, inp1, inp2, inp3,
-	abs0, abs1, abs2, abs3;
-	#define ABS(x) ( x<0 ? -x : x )
-	
-	inp0 = input0;
-	inp1 = input0 >> 16;
-	inp2 = input1;
-	inp3 = input1 >> 16;
-	
-	abs0 = ABS(inp0);
-	abs1 = ABS(inp1);
-	abs2 = ABS(inp2);
-	abs3 = ABS(inp3);
-	
-	return abs0 + abs1 + abs2 + abs3;
-}
-
-	\end{lstlisting}
-	\caption{Test code for VHDL improvements}
-\label{code:vhdl-eval}
+	\begin{tikzpicture}
+		\begin{axis}[
+		legend style={at={(1.1,0)}, anchor=south west},
+		xlabel=,
+		ylabel=number of nodes,
+		]
+		\addplot+[ycomb] plot 
+			coordinates {(32,5) (19,1)
+				(18,1) (17,5) (16, 21) (2,4)};
+		\addplot+[ycomb] plot 
+			coordinates {(32,21) (16,16)};
+		\legend{Optimized,Unoptimized}
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Comparison of bit usage before and after the optimization, for the code in \ref{code:vhdl-eval}}
+	\label{code:vhdl-eval-table}
 \end{figure}
