@@ -4,16 +4,12 @@
 The analysis is a data flow analysis. The analysis attaches an $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful if the node has an integer-mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}. \newline
 What stable here means can be observed when looking at \ref{fig:numbers}.
 For the first line of the table we have five stable digits. The second line has 7 stable digits.\newline
-Since this is a data flow analysis, which is built on an iterative approach. We might want to address the current tuple of a node $x$, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
+This is a iterative approach, which means, we might want to address the current tuple of a node $x$, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
 
 \paragraph{Bit representation}
 The stable bits indicate how many bits are stable, and therefore not used.
-The second value of the tuple indicates if the value will ever reach negative numbers or not. Thus it indicates at least one stable bit at the highest position. However, the second value is only meaningful for modes that allow signs. We note down the stable bits of a node as $stable_nodes(n)$.
-Sometimes we don't want to have the used bits instead of the stable bits, in this case we note the result as:
-$
-used\_bits(n):=mode\_bits(n)-stable\_bits(n)
-$
-
+The second value of the tuple indicates if the value will ever reach negative numbers or not. Thus it indicates at least one stable bit at the highest position. However, the second value is only meaningful for modes that allow signs. We note down the stable bits of a node as $stable\_nodes(n)$, same for $is_positive(n)$.
+Sometimes we don't want to have the used bits instead of the stable bits, in this case we note the result as:$used\_bits(n):=mode\_bits(n)-stable\_bits(n)$
 Where $mode\_bits$ expresses the amount of bits per node.
 
 \paragraph{Range representation}
@@ -30,8 +26,8 @@ $
 $
 min_{bitwidth}(n)=
 \left\{
-\begin{array}{l}2^{used\_bits(n)-1}\\0\end{array}
-\begin{array}{l} {mode.signed \wedge is\_positive} \\ {Otherwise} \end{array}
+\begin{array}{l}-2^{used\_bits(n)-1}\\0\end{array}
+\begin{array}{l} {mode.signed \wedge \neg is\_positive} \\ {Otherwise} \end{array}
 \right.
 $
 
@@ -51,8 +47,6 @@ then the new value is memorized as $\hat{x}$ of the node. Also every successor o
 In addition to the normal analysis results, the fixed point iteration can insert additional confirm nodes. Those confirm nodes help making the analysis more accurate.
 First of all we need a few definitions for easier understanding:
 
-\input{fig/upper_bound_cmp.tex}
-
 \subparagraph{Definition: Upper bounds}
 A compare node defines an upper bound if the relation is $<$ and the second operand is constant.\newline
 The definition also applies for compare nodes that can be transformed by swapping the two operands and the relation accordingly.
@@ -68,7 +62,7 @@ It will return every node that is located in \textit{b} and is a predecessor of 
 \subparagraph{Definition: Constant dependencies}
 \input{fig/def_xi.tex}
 While looking at C code we often see that addition and multiplication nodes are used for calculating array addresses or addresses for structure access. Therefore, one operand of the arithmetical operations is often constant. An example for this can be found in \autoref{fig:def:xi}.
-We define $\xi$ to explore the whole tree of nodes with one constant and one none-constant operands, and return us every node that was not constant.
+We define $\xi$ to explore the whole tree of nodes with one constant and one none-constant operand, and returns every node that was not constant.
 \begin{center}
 $\xi(a) := 
 \left\{

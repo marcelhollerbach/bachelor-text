@@ -3,17 +3,17 @@
 \section{cparser / libfirm}
 Modern compilers are now developed for over half a century. Over the time a new structure has evolved. Compilers are split into three parts. The first part is called \textit{front end} and handles everything related to the language specific parts. The second part is called \textit{middle ware} and handles the abstract notation of code execution. The last part is called \textit{back end} and does the translation into something like assembler or java bytecode. As an example, cparser is handling the C specific tasks. The parsed c code is then translated into a control flow graph from $\libFIRM$, which is the middle ware. The $\libFIRM$ middle ware then also acts as back end and translates the control flow graph into assembler / java bytecode.
 
-\paragraph{Control flow graph in \libFIRM} The interaction between the front and middle ware is based on a data structure called control flow graph (CFG). A CFG is a directed graph. Each node is representing a operation. A node can have operands. We say that a node always depends on a other node, when there is a edge from the node to the other node. CFGs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis. In $\libFIRM$ the nodes of the CFG can have different types: control flow, arithmetical operations, memory handing, constant expressing. A node is additionally placed in a block. A node is executed if all its operands have been executed. Or, if there are no operands, when its block is executed.
+\paragraph{Control flow graph in \libFIRM} The interaction between the front and middle ware is based on a data structure similar to a control flow graph, it is called FIRM graph. A FIRM graph is a directed graph. Each node is a operation. Nodes can have operands. We say that a node always depends on another node, when there is a edge from the node to the other node. The FIRM graphs are also the base structure for analyzing the control flow of a software. Such a analysis is called control flow analysis. The nodes of the FIRM graph can have be categorized in different types: control flow, arithmetical operations, memory handing, constant expressing. A node is additionally placed in a block. A node is executed if all its operands have been executed. Or, if there are no operands, when its block is executed.
 Another software that does the same thing is \textit{clang}, where the back end is handled by \textit{llvm}.
-A more in detail explanation can be found in \cite{libfirm}. A more theoretical and abstraction introduction can be found in \cite{control-flow-analysis}
+A more in detail explanation can be found in \cite{libfirm}. A more theoretical and abstracted introduction to control flow graphs can be found in \cite{control-flow-analysis}
 
 \paragraph{Confirm nodes in \libFIRM}
-In $\libFIRM$ there are several node types, one of them is called Confirm nodes. A Confirm node is not having a hardware representation. It is used to express that the operand of the Confirm node will output a value that is within the confirmed node. A Confirm node therefore has 2 operands. They are called value and bound, additionally a Confirm node has a relation.
-As relations $\not=$, $=$, $<$, $>$, $>=$, $<=$ are possible. 
-Written as prefix notation we can say that the Confirm node gives the assertion that $\tau(value, bound)$ is true, where $\tau$ is the relation.
+In $\libFIRM$ there are several node types, one of them is called "Confirm" node. A Confirm node does not have a hardware representation. A confirm node has 2 operands. They are called value and bound, additionally a Confirm node has a relation. As relations $\not=$, $=$, $<$, $>$, $>=$, $<=$ are possible. 
+Written as prefix notation we can say that the Confirm node gives the assertion that $\tau(value, bound)$ is true, where $\tau$ is the relation. This is useful for control flow analysis, as the Confirm nodes can indicate possible shortcuts with knowledge that is gained from other analysis.
 
 \subparagraph{True / false Blocks}
-A compare node in \libFIRM has always a relation, 2 operands and 2 blocks. One of the blocks is executed depending on if the criteria was meet or not. The block that is executed when it was meet, is called \emph{true-block} the other block is called \emph{false-block}. The structure is visualized in \autoref{fig:compare_upper_bound}
+\input{fig/basic_compare.tex}
+A compare node in $\libFIRM$ has always a relation, 2 operands and 2 blocks. The compare node executes the true block, when the relation and operands are evaluating to true. The false block is executed otherwise. The structure is visualized in \autoref{fig:compare}
 
 \paragraph{Interaction from front to back end}
 
@@ -32,11 +32,11 @@ A compare node in \libFIRM has always a relation, 2 operands and 2 blocks. One o
 	\label{code:workflow:example}
 \end{figure}
 
-As an example, we want to compile the program code from \ref{code:workflow:example}.
-First of all the front end will parse the given source code. The parsed code then will be stuffed into a abstract syntax tree (AST). The representation in the abstract syntax tree will encode the syntactical informations from the software. Informations like curly brackets will not be needed anymore. \newline
-After that the AST will be transformed into a CFG. \newline
-At this point the front end handed the informations for binary creation to the back end. However, the front end can now tell the back end to perform optimizations on the information. In terms of C this is often controlled with the -O{1,2,3} flags. \newline
-After the optimizations have taken place, the binary files can be written into a file, and the compiler call is finished.
+As an example, we want to compile the program code from \autoref{code:workflow:example}.
+First of all, the front end parses the given source code. The parsed code then is transformed into a abstract syntax tree (AST). The representation in the abstract syntax tree encodes the syntactical informations from the software. File contents like curly are encoded in the structure, and are not explicitly represented in the AST. \newline
+After that the AST is transformed into a FIRM graph. \newline
+At this point the front end handed the informations for creating a binary programm to the back end. However, the front end can now tell the back end to perform optimizations on the FIRM graph. In terms of C, this is often controlled with the -O{1,2,3} flags. \newline
+After the optimizations have taken place, the binary files are written into a file, and the compiler call is finished.
 \begin{figure}
 	\centering
 	\begin{tabular}{c | c c c c c c c c c}
@@ -49,7 +49,7 @@ After the optimizations have taken place, the binary files can be written into a
 	\label{fig:numbers}
 \end{figure}
 \paragraph{Number representation}
-So called \textit{modes} are used in libfirm to represent data words on which operations are performed. A mode specifies a length in bits. A data word can have a type, this can be \textit{integer}, \textit{float}, \textit{reference}, \textit{data} and \textit{boolean}. For us, the only interesting type is the integer type, since this is the only type where we can save bitwidth for now. Those integer-modes can be signed or unsigned. The length of the mode defines the maximum number. If it is signed, then it also defines the minimum number. Otherwise the minimum is just null. The sign is encoded using two's complement. As an example, in \autoref{fig:numbers} two numbers are displayed with its hardware representation. There are the following integer type modes in \libFIRM : 
+So-called \textit{modes} are used in $\libFIRM$ to categorize data words. A mode specifies a length in bits. A data word can have a sort, this can be \textit{integer}, \textit{float}, \textit{reference}, \textit{data} and \textit{boolean}. For us, the only interesting type is the integer type, since this is the only type where we can compute bitwidth for now. Those integer-modes can be signed or unsigned. The length of the mode defines the maximum number. If it is signed, then it also defines the minimum number. Otherwise the minimum is just zero. The sign is encoded using two's complement. There are the following integer modes : 
 %\textit{mode\_Bs}:
 \textit{int8},
 %\textit{mode\_Bu}: 
@@ -61,16 +61,17 @@ So called \textit{modes} are used in libfirm to represent data words on which op
 %\textit{mode\_Is}: 
 \textit{int32},
 %\textit{mode\_Iu}:
-\textit{uint32} ,
+\textit{uint32},
 %\textit{mode\_Ls}: 
 \textit{int64},
 %\textit{mode\_Lu}:
 \textit{uint64},
 
+As an example, in \autoref{fig:numbers} two numbers are displayed with its hardware representation.
 The term \textit{mode} is used to describe integer-modes for the rest of this thesis.
 
 
-\section{Mathematical theory}
+\section{Software theory}
 
 There are a few mathematical basics which are known to be useful for performing compiler analysis. The first basic is the lattice. The second basic is the fixed point iteration.
 
