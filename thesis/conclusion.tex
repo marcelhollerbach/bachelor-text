@@ -1,24 +1,24 @@
 \chapter{Conclusion}\label{sec:conclusion}
 
 \section{Assembler generation}
-The previous chapter showed that the optimizations are not that helpful on decoder code. This thesis was done for evaluating decoder code, so no others projects have been checked. However, other projects like direct UI or CLI implementations also could be evaluated, since the patterns from decoding code are quite different to ui codes. Without evaluating others, we can say, that the optimization for dropping conversion nodes from the graph is not that helpful.
+The previous chapter showed that the optimizations are not that helpful on decoder code. This thesis was focused on evaluating decoder code. However, other projects like UIs or CLI implementations also could be evaluated, since the patterns from decoding code are quite different to UI codes. Without evaluating others, we can say, that the optimization for dropping conversion nodes from the graph is not improving the overall assembler generation.
 
 \section{VHDL generation}
 Its similar to the assembler generation. There is no obvious improvement over the not optimized VHDL code. However, its very hard to see real differences due to the inability to understand the real differences in the bitstream. A open bitstream standard would help here, since the projects then could be compared on the lowest possible hardware layer.
 \section{Further improvements}
 \subsection{Widening \& Narrowing}
 
-Widening and Narrowing is a technique that tries to achieve the same or slightly worse results, by maintaining a better runtime. Here are a few things that could be done in this analysis to achive this. However, the time was short and thus the following is only thought about, but not yet implemented.
+Widening and Narrowing is a technique that tries to achieve the same or slightly worse results while maintaining a better runtime. Here are a few things that could be done in this analysis to achive this. However, the time was short and thus the following is only thought about, but not yet implemented.
 
 \paragraph{Widening not terminating loops}
-There is the theoretical question of when we are able to predict that a loop will terminate before the whole bitwidth is used or not. The question for this analysis is quite simple, if there is a Compare node in the loop, and it is defining a upper bound, then we might find a upper bound when we insert the confirm node there as described in \ref{upper_bound_insert_confirm}. If there is no Confirm node, and no Compare node, then there is no chance for the loop to terminate. And thus we might want to wide our stable bits to 0.
+There is the theoretical question of when we are able to predict that a loop will terminate before the whole bitwidth is used or not. The question for this analysis is quite simple, if there is a Compare node in the loop, and it is defining an upper bound, then we might find an upper bound when we insert the confirm node there as described in \autoref{upper_bound_insert_confirm}. If there is no Confirm or Compare node, then there is no chance for the loop to terminate. And thus we might want to set our stable bits to 0.
 
 \paragraph{Narrowing for arithmetical chains}
-As explained in \ref{VRP_king}, the VRP returns a more accurate result for arithmetical chains. A arithmetical chain can be defined as a set of arithmetical nodes, where each node has a successor which is a arithmetical node.
+As explained in \ref{VRP_king}, the VRP returns a more accurate result for arithmetical chains. An arithmetical chain can be defined as a set of arithmetical nodes, where each node has a successor which is a arithmetical node.
 
-The problem with arithmetical operations is within the bitwidth analysis is, is that we need to calculate the worst case in terms of bit usage. As an example, two operands with the ranges $[0..2]$ and $[0..4]$ will result in the range $[0..6]$. However, we are in a bitwidth analysis here, which means the ranges here are always rounded up to the next power of two. This means for our example, that the two operands will have the same ranges, but the result of the addition will be $[0..8]$. In higher bit ranges, the lose is even bigger.
+The problem with arithmetical operations is within the bitwidth analysis is, is that we need to calculate the worst case in terms of bit usage. As an example, two operands with the ranges $[0..2]$ and $[0..4]$ will result in the range $[0..6]$. However, we are in a bitwidth analysis here, which means the ranges here are always rounded up to the next power of two. This means for our example, that the two operands will have the same ranges, but the result of the addition will be $[0..8]$. In higher bit ranges, the loss is even bigger.
 
-The problem can be fixed, by calculating the result for a arithmetical node as the bitwidth information, as well as the exact range. The successor of the node can then use the exact range instead of the bitwidth info for calculating its results. Thus we end up in the same result as the VRP.
+The problem can be fixed by calculating the result for a arithmetical node as the bitwidth information, as well as the exact range. The successor of the node can then use the exact range instead of the bitwidth info for calculating its results. Thus we end up in the same result as the VRP.
 
 \section{Additional analyzer usage}
 \paragraph{More conversion nodes}
