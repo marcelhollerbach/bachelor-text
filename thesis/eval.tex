@@ -34,10 +34,10 @@ We can say that we safe up about 9 bits in average per node.
 \section{Optimizations on assembler output}
 
 In this section we compare the shared object files of the library. The first run was done with plain cparser, the second run was done with cparser + the patches created for this thesis.\newline
-After that the disassembly of the shared object files are compared. However, comparing those two shared object files is quite hard, due to addresses and instruction order changes. Making the comparing easier was possible after removing the address of every line and removing the arguments of the instructions. Loosing the arguments of the instruction makes it hard to compare if something in the calling of the function has changed. However, we can better study the raw changes on the instructions. What follows is the explanation, how the assembler output changes.
+After that the disassemblies of the shared object files are compared. However, comparing those two shared object files is quite hard, due to addresses and instruction order changes. Making the comparing easier was possible after removing the address of every line and removing the arguments of the instructions. Loosing the arguments of the instruction makes it hard to compare if something in the calling of the function has changed. However, we can better study the raw changes on the instructions. What follows is the explanation, how the assembler output changes.
 
 \paragraph{libgif} There was not a single change, the two binary files are identical.
-\paragraph{libjpeg} The assembler output from after the optimization is about 30 instructions longer. The functions don't differ a lot. It looks most of the times like simple reordering of instructions. The amount of additional instructions is caused by instruction duplication, which can be caused by loop unrolling.
+\paragraph{libjpeg} The assembler output from after the optimization is about 30 instructions longer. The functions don't differ a lot. It looks most of the times like simple reordering of instructions. The amount of additional instructions is probably caused by loop unrolling.
 
 \paragraph{libtiff} The results here are similar to libjpeg. One difference is, the optimization causes add instructions to be translated to lea instructions. 
 
@@ -50,19 +50,20 @@ The complete repository with the releases and data and scripts can be found at \
 \section{Optimization VHDL improvements}
 
 \input{fig/code_snippet.tex}
-We use a simple C snipped for evaluating the VHDL generation im provements. The C snipped can be found at \autoref{code:vhdl-eval}. The saved bitwidth from the analysis can be observed in \autoref{code:vhdl-eval-table}. The unoptimized VHDL code has a summed bitwidth usage of 928, while we drop this usage down to 609 when optimized. This means on a average base unoptimized $25.1$ and optimized $16.91$.
+We use the code at \autoref{code:vhdl-eval} for evaluating the VHDL generation improvements. The saved bitwidth from the analysis can be observed in \autoref{code:vhdl-eval-table}. The unoptimized VHDL code has a summed bitwidth usage of 928, while we drop this usage down to 609 when optimized. This means on a average base unoptimized $25.1$ and optimized $16.91$.
 
-After the C snipped was compiled into VHDL, the Xilinx Vivado 2018.2 IDE for FPGA generation was used to compile the VHDL code into a bitstream. Due to some discoveries with Vivado, a second try was done to compile the VHDL with Quartus. Quartus is a FPGA SDK from Intel Altera.
+After the C snipped was compiled into VHDL, the Xilinx Vivado 2018.2 IDE for FPGA generation was used to compile the VHDL code into a bitstream. A second try was done to compile the VHDL with Quartus. Quartus is a FPGA SDK from Intel Altera.
 
 \paragraph{Vivado}
-In Vivado two projects of the same kind have been created, one with the VHDL file without the improved \textit{ir2vhdl} tool, one with them. Both projects have been using the Kintex UltraScale+ xcku5p device. After the syntesis was running on both projects we took the statistic table from the report. We compared the number of LUTs and Registers. 
+In Vivado two projects of the same kind have been created, one with the VHDL file without the improved \textit{ir2vhdl} tool, one with them. Both projects have been using the Kintex UltraScale+ xcku5p device. After the syntesis was running on both projects we took the statistic table from the report. We compared the number of LUTs and registers. 
 \input{fig/vhdl_cmp_table_vivado.tex}
-In \autoref{table:vhdl_improvements_vivado} you can observe in the first two columns that the not optimized code was a lot better LUT and register wise than the optimized code. A quick look at the optimized VHDL code shows that there are a lot of redundant \textit{resize} calls. After that observation the decision was made that the redundant calls can be removed by hand right now, as from the beginning on we thought the VHDL compiler would take care of removing those. The Results of this third try can be observed in the last column.
+In \autoref{table:vhdl_improvements_vivado} you can observe in the first two columns that the unoptimized code has a much lower number of LUTs and registers.
+A quick look at the optimized VHDL code shows that there are a lot of redundant \textit{resize} calls. After that observation the decision was made that the redundant calls can be removed by hand right now, as from the beginning on we thought the VHDL compiler would take care of removing those. The results of this third try can be observed in the last column.
 All in all this was not improving the results at all. A deeper look showed that redundant resize calls are not handled by this VHDL compiler. Even after removing them, the amount of LUTs was still bigger than in the beginning.
 
 \paragraph{Quartus}
-As in Vivado two projects have been created. Both Project are using the Board Intel Altera Cyclone V as target device. After the Compiling and Fitting, the two Resource Usage Report have been compared.
+As in Vivado two projects have been created. Both projects are using the Board Intel Altera Cyclone V as their target device. After the "Compiling and Fitting" build step, the two "Resource Usage Reports" have been compared.
 \input{fig/vhdl_cmp_table_quartus.tex}
-What can be observed in \autoref{table:vhdl_improvements_quartus} is that the optimization does not impact the numbers of ALMs used. The hand optimized code was resulting in the equal results as the optimized VHDL output, and is not explicitly listed therefore. Quartus provides a additional setting where the synthesis and fitting steps are more focused on performance or area usage. Tweaking those setting did not impact the differences between the two generated VHDL files.
+What can be observed in \autoref{table:vhdl_improvements_quartus} is that the optimization does not impact the numbers of ALMs used. The hand optimized code was resulting in the equal results as the optimized VHDL output, and is not explicitly listed therefore. Quartus provides an additional setting where the "Compiling and Fitting" steps are more focused on performance or area usage. Tweaking those setting did not impact the differences between the two generated VHDL files.
 
-Overall we can see that its quite hard to measure the improvements the VHDL optimization gives, due to the missing insight into the processes that are performed in order to compile a VHDL file into a bitstream.
+Overall we can see that it's quite hard to measure the improvements the VHDL optimization gives, due to the missing insight into the processes that are performed in order to compile a VHDL file into a bitstream.
