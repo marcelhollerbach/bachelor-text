@@ -1,17 +1,19 @@
 \chapter{Evaluation}\label{sec:eval}
 
-The most interesting projects for evaluating the implementation, are decoding softwares that are transforming a binary blob into a image. For this purpose, libjpeg, libpng and libgif are evaluated. Additionally zlib is done, since it is a general purpose library for lossless compression, which is often used in reallife products.
+For this thesis, libjpeg, libpng and libgif and zlib are evaluated. zlib is often use as a general purpose lossless compression. The other libraries are used for decoding the most used image formats.
 
-For those projects we are measuring two things. First, how effective our bitwidth saving is and how much we have saved. Second, we are trying to compare the assembler with and without the applied optimizations.
+For those projects we are measure two things. 
+First we check how much bitwidth is really used, compared to the using the full modes, additionally, we check what impact this has on our assembler generation.
+Second, we are checking if the safed bitwidth does impact the VHDL outputting of \textit{firm2vhdl}, this is done by compiling the generated VHDL files with two different IDEs.
 
 \section{General bitwidth}
 %How much bitwidth the nodes are having in average per function
-A node in $\libFIRM$ uses a amount of the available bitwidth. We note down the bitwidth of a node as $bitwidth_{irg}(n)$.
+A node in $\libFIRM$ uses an amount of bits, the maximum is defined by the mode. We note down the bitwidth of a node as $bitwidth_{irn}(n)$.
 If we don't perform our analysis, then we need to assume the worst case, the node uses all the bits that are available from its mode.
-If the analysis is performed, then we can say that the stable bits of the analysis are defining the bitwidth of a node.
+If the analysis is performed, then we can say that the stable bits of the analysis defines the bitwidth of a node.
 For comparing the functions directly, we define:
 
-$bitwidth_{irg}(irg) := \frac{\sum\nolimits_{n \in graph.nodes} bitwidth_{irn}(n)}{|graph.nodes|} $ 
+$bitwidth_{irg}(irg) := \frac{\sum\nolimits_{n \in irg.nodes} bitwidth_{irn}(n)}{|irg.nodes|} $ 
 
 We divide the sum by the number of nodes, to be able to compare smaller graphs with bigger ones. 
 
@@ -19,17 +21,17 @@ We divide the sum by the number of nodes, to be able to compare smaller graphs w
 \input{fig/table_const.tex}
 While evaluating the projects, it came up that a normal graph consists of a lot of constant nodes, exact percentages can be found in the third column of  \autoref{table:amount_const}. 
 
-The problem with a Constant node is, the bitwidth can be quite low. While the constant does not matter on hardware in most cases, since they are decoded directly in a hardware instruction. Additionally they don't take up any additional space in VHDL. 
+The problem with a Constant node is that the bitwidth can be quite low, while this does not improve the assembler generation, nor impact the overall usage of registers.
 
-Calculating how much bitwidth a constant takes is anyway only the matter of a log2(...) call, which is not really interesting to evalulate, in order to see how good the analysis works.
+Calculating how much bitwidth a constant takes is anyway only the matter of a log2(...) call, which is not really interesting to evaluate, in order to see how good the analysis works.
 
 Summed up, Constant nodes are sophisticating the bitwidth of a function a lot. Thus the statistics at \ref{table:project_average_bitwidth} are divided into results with and without the constant values.
 
 \paragraph{Project results}
 \input{fig/project_average_bitwidth.tex}
-In \autoref{table:amount_const} the second column is showing the total number of nodes that got created in order to compile the library. This can be used as some sort of complexity metric. 
+In \autoref{table:amount_const} the second column shows the total number of nodes that were created in order to compile the library. This can be used as some sort of complexity metric. 
 \autoref{table:project_average_bitwidth} shows that all the libraries except \textit{libjpeg} have a similar amount of bitwidth that got saved. However, the amount of saved bitwidth still does not really correlate with the complexity of the projects, since \textit{libgif} is not similar complex to \textit{zlib} or \textit{libpng}.\newline
-We can say that we safe up about 9 bits in average per node.
+We can say that we save up about 9 bits in average per node.
 
 \section{Optimizations on assembler output}
 

@@ -93,9 +93,11 @@ The element, which is the least of all elements is called $\bot$. The greatest o
 A more detailed introduction can be found in \cite{lattice_theory}.
 
 \subsection{Fixed point iteration}
-Fixed point iteration is a method for finding a $x$ where we know that $f(x)=x$. \newline
-First of all we define $f: D \rightarrow D$. $f$ is monotone, additionally $|D|$ must be finite. We call $x \in D$ a fixed point if $f(x)=x$.
-For iterating we start with the minimum of D. We define $y_0=f(min(D))$, $y_i=f(y_{i-1})$. With the requirements from above we can say: $\exists i \in N : y_i = y_{i-1}$. For further reading, please see \cite{fixed-point-iteration-basic}
+Fixed point iteration is a method for finding a $\tilde{x}$ where we know that $f(\tilde{x})=\tilde{x}$. \newline
+Given a none-empty set $D$, where $|D|$ is finite. And $f: D \rightarrow D$, where $f$ is monotone.
+And a $x_0 \in D$ which we call start point.
+
+We define $x_i=f(x_{i-1})$ for every $i > 0$. Now we can say: $\exists i \in N : x_i = x_{i-1}$. For further reading, please see \cite{fixed-point-theory}.
 
 %\paragraph{Prove}$f$ is continuous, this means $\forall x >= y: f(x) >= f(y)$. So we know that $f(x) = y$ where $y > x$. Or $f(x) = x$, which means that we found a fixed point. However, the first case can only happen a finite amount of times, since $|D| \not= \infty$. Thus there has to exist a fixed point.
 
@@ -116,7 +118,6 @@ We start the iteration with $d_{bot} := \{(0,\bot), ..., (n, \bot)\}$. At some p
 %f being not continuous means $\exists x <= y: f(x) > f(y)$.
 %This means that there has to be a $v_x \in x$ and $v_y \in y$, where $f_{node}(v_x) > f_{node}(v_y)$ even if $v_x <= v_y$, which is against the definition of $f_{node}$. Thus f has to be continuous.
 
-\section{Software basic}
 \subsection{Worklist algorithm}
 
 A possible solution for implementing fixed point algorithms could be done by iterating the whole CFG everytime a node changes. However, this is quite wasteful, since we know that the state of a node only depends on the state of its operands. Therefore a algorithm called \textit{worklist algorithm} has evolved and can be found in \autoref{worklist}.
