@@ -1,14 +1,14 @@
 \chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analysis is a data flow analysis. The analysis attaches an $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful if the node has an integer-mode. We will reference the first value as \emph{stable bits} and the second bit as \emph{is positive}. \newline
+The analysis is implemented with with the worklist algorithm. The analysis attaches an $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful if the node has an integer-mode. We will reference the first value as \emph{stable bits} and the second value as \emph{is positive}. \newline
 What stable here means can be observed when looking at \ref{fig:numbers}.
 For the first line of the table we have five stable digits. The second line has 7 stable digits.\newline
-This is a iterative approach, which means, we might want to address the current tuple of a node $x$, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
+The whole algorithm is iterative, which means, we might want to address the current tuple $x$ of a node, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
 
 \paragraph{Bit representation}
-The stable bits indicate how many bits are stable, and therefore not used.
-The second value of the tuple indicates if the value will ever reach negative numbers or not. Thus it indicates at least one stable bit at the highest position. However, the second value is only meaningful for modes that allow signs. We note down the stable bits of a node as $stable\_nodes(n)$, same for $is_positive(n)$.
+The stable bits indicate how many bits are not used.
+The second value of the tuple indicates if the value will ever reach negative numbers or not, it is only meaningful for modes that allow signs. We note down the stable bits of a node as $stable\_nodes(n)$, same for $is_positive(n)$.
 Sometimes we don't want to have the used bits instead of the stable bits, in this case we note the result as:$used\_bits(n):=mode\_bits(n)-stable\_bits(n)$
 Where $mode\_bits$ expresses the amount of bits per node.
 
@@ -62,7 +62,7 @@ It will return every node that is located in \textit{b} and is a predecessor of 
 \subparagraph{Definition: Constant dependencies}
 \input{fig/def_xi.tex}
 While looking at C code we often see that addition and multiplication nodes are used for calculating array addresses or addresses for structure access. Therefore, one operand of the arithmetical operations is often constant. An example for this can be found in \autoref{fig:def:xi}.
-We define $\xi$ to explore the whole tree of nodes with one constant and one none-constant operand, and returns every node that was not constant.bot
+We define $\xi$ to explore the whole tree of nodes with one constant and one none-constant operand, and returns every node that was not constant.
 \begin{center}
 $\xi(a) := 
 \left\{
@@ -128,14 +128,15 @@ This section is about decisions that where made, and why they are made.
 \subsection{Value range vs. bitwidth}
 
 %Where is the actaul difference when looking at the rules.
-The analysis explained in \ref{analysis_explain} is using rules which are based on the bitwidth. The same algorithm could use rules that are working on the range, and not the bitwidth. The later is called value range propagation. The result of both analyses are similar, a master thesis from MIT (\cite{bitwidthanalysis-mit-vrp}) is claiming that the value range propagation is more accurate than the bitwidth analysis, not only because of the rounding up.
+The analysis explained in \ref{analysis_explain} is using rules which are based on the bitwidth. The same algorithm could use rules that are working on the range, and not the bitwidth. The later is called value range propagation. The result of both analyses are similar, a master thesis from MIT (\cite{bitwidthanalysis-mit-vrp}) is claims that the value range propagation is more accurate than the bitwidth analysis, and not only because of the rounding up.
 
 \input{fig/vrp_loop_examples.tex}
 
-However, the thesis misses one essential fact. In case of a loop like \autoref{fig:loop_no_assertions} where no assertions can be made, both analyses share the same result: The nodes will use their whole bitwidth / range. However, the difference between the two analysis here is, that the VRP will need $2^{msb}$ iterations, while the bitwidth analysis only takes $msb$ iterations, where $msb$ expresses the number of the maximum bit. Thus the bitwidth analysis produces the same result, while it's a lot faster.
+However, the thesis misses one essential fact. In case of a loop like \autoref{fig:loop_no_assertions}, where no assertions can be made, both analyses share the same result: The nodes will use their whole bitwidth / range. However, the difference between the two analysis here is, that the VRP will need $2^{msb}$ iterations, while the bitwidth analysis only takes $msb$ iterations, where $msb$ expresses the number of the maximum bit. Thus the bitwidth analysis produces the same result, while it's a lot faster.
 
 Another interesting situation is when a Confirm node can be inserted in a loop (See \ref{fig:loop_assertions}). If this is the case, then the bitwidth analysis will return $2^{\lceil log2(bound) \rceil}$ while the VRP would return $log2(bound)$ as the biggest number required by the code. What this shows is, that the VRP here is only more accurate, because the data structure of the bitwidth info operates on bits, while the VRP operates on normal numbers. The runtime here is the same.
 
+\newpage
 \input{fig/arithmetical_chains.tex}
 \label{VRP_king}
 The only configuration where the VRP returns constantly a more accurate result, is when arithmetical operations are not looping, but are rather used as some sort of tree structure, like it is illustrated in \ref{fig:arithmetical_chains}. Here the VRP is more accurate, the runtime is the same.

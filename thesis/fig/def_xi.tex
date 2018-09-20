@@ -11,21 +11,24 @@
 						\node[firm]    (const2) at (3,2) {Const};
 						\node[firm]    (mul)    at (1,2) {Mul};
 						\node[firm]    (add)    at (1,1) {Add};
-						\node[firm]    (sub)    at (0,0) {Sub};
+						\node[firm]    (sub)    at (0,0) {Sub := $\lambda$};
+						\node[firm]    (mul2)    at (-0.5,3) {Mul};
+						\node[firm]    (mod)    at (1,3) {Mod};
 
 						\draw[dataDependency]    (sub.60)      -- ++(0,0.1) -| (add);
-						\draw[dataDependency]    (sub.north)   -- ++(0,0.1) -| (-0,3);	
+						\draw[dataDependency]    (sub.north)   -- ++(0,0.1) -| (mul2);	
 						\draw[dataDependency]    (add.north)     -- ++(0,0.1) -| (mul);
 						\draw[dataDependency]    (add.60)      -- ++(0,0.1) -| (const2);
 						\draw[dataDependency]    (mul.60)     -- ++(0,0.1) -| (const1);
-						\draw[dataDependency]    (mul.north)   -- ++(0,0.1) -| (1,3);
-
+						\draw[dataDependency]    (mul.north)   -- ++(0,0.1) -| (mod);
+						
+						\draw[red, thick,dotted]     ($(mul.north west)+(-0.15,0.15)$) rectangle ($(add.south east)+(0.15,-0.15)$);
 					\end{tikzpicture}
 				};
 			\end{tikzpicture}
 		};
 	\end{tikzpicture}
     %FIXME highlight mul and addli
-\caption{Definition of $\xi$}
+\caption{A subgraph of a FIRM graph. The result of $\xi(\lambda)$ is highlighted in red}
 \label{fig:def:xi}
 \end{figure}
