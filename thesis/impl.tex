@@ -1,9 +1,10 @@
 \chapter{Design \& Implementation}\label{sec:impl}
 
 \section{Bitwidth analysis}
-The analysis is implemented with with the worklist algorithm. The analysis attaches an $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful if the node has an integer-mode. We will reference the first value as \emph{stable bits} and the second value as \emph{is positive}. \newline
+The analysis is implemented with the worklist algorithm. The analysis attaches an $(int,boolean)$ tuple to every meaningful node. A node is considered meaningful if the node has an integer-mode. We will reference the first value as \emph{stable bits} and the second value as \emph{is positive}. \newline
 What stable here means can be observed when looking at \ref{fig:numbers}.
 For the first line of the table we have five stable digits. The second line has 7 stable digits.\newline
+With the assumption that both numbers are defined as a signed int. The tuples would be $(4,true)$ and $(6,false)$ for the two numbers from the table.\newline
 The whole algorithm is iterative, which means, we might want to address the current tuple $x$ of a node, while we have a new one calculated. Therefore we call $\hat{x}$ the currently associated value, and $x$ the newly calculated one.
 
 \paragraph{Bit representation}
@@ -35,7 +36,7 @@ $
 
 \paragraph{Analysis}
 \label{analysis_explain}
-The analysis works as a fixed point iteration, implemented with the work list approach. For it we use  \autoref{fig:lattice} as lattice. The values of the lattice represent the tuples from the analysis.
+The analysis works as a fixed point iteration, implemented with the work list approach. You can find the used lattive in \autoref{fig:lattice}. The values of the lattice represent the tuples from the analysis.
 
 As a first step, we iterate over every single node and initialize the node with $\bot$ and mark it as \textit{dirty}. If the node is constant, we calculate its bitwidth. Nodes with the opcodes \textit{Const}, \textit{Size} and \textit{Address} are considered constant.
 
@@ -86,7 +87,7 @@ We now evaluate an upper bound compare node, every time the first operand change
 
 \paragraph{Extended confirm insertion}
 The confirm nodes that we have inserted in the paragraph before can also be transported backwards.bot
-With $\xi(i)$ we can get a set of nodes, where the current state in the analysis is only depending on one node. Thus we can say that the state of every node from $\xi(i)$ will not change as long as the topmost upper element in the tree structure does not change. Which means that we can insert a confirm node between $(e,g)$ for every $e \in \xi(i)$ and $g \in \kappa(e, j)$
+With $\xi(i)$ we can get a set of nodes, where the current state in the analysis is only depending on one node. Thus we can say that the state of every node from $\xi(i)$ will not change as long as the topmost upper element in the tree structure does not change. Which means that we can insert a confirm node between $(e,g)$ for every $e \in \xi(i)$ and $g \in \kappa(e, j)$. Those additional confirm nodes then must get there bound adjusted, so the confirm nodes do make sense with the arithmetical operation between them.
 
 \section{Stable Conversion nodes}
 In $\libFIRM$ a conversion node can be used to convert a value from one mode to another. This type of node has one operand. A conversion like this can have one of two effects. The value stays the same, or the value changes, due to the inability of representing the value in a different mode. We call the first case \textit{stable conversion node}. A example for an unstable conversion node may look like ($unsigned$)(($int$)-10). A stable conversion node may look like ($unsigned$)(($int$)10).
@@ -96,13 +97,12 @@ Such stable conversion nodes can be found using the bitwidth analysis. We compar
 
 \paragraph{Removing conversion nodes}
 \input{fig/conv_opt.tex}
-In case we found a stable conversion node, we can say that this node only exists for syntax rules, there is no semantical value in it. Removing those nodes also has the advantage of helping other analyses. 
-
+In case we found a stable conversion node, we can say that this node only exists for syntax rules, there is no semantical value in it. Removing those nodes also has the advantage of helping other analyses. \newline
 One example for this is the confirm insertion algorithm of $\libFIRM$, it searches for assertions that can be made based on looking at compare nodes. This works quite well. However, the example in \autoref{fig:example:conversion_opt} does not work. The insertion code can only insert a Confirm between the Compare and the conversion. However, this is not useful for other analysis, therefore the Confirm node should be before the Conv node.
 After removing the conversion node, the analysis can find an assertion based on the compare node. Other examples where this can improve things is in the dead code elimination, and the branch prediction. Next two paragraphs are explaining two concrete optimizations for removing conversion nodes.
 
 \paragraph{Compare-Conversion optimization}
-The rule in $\libFIRM$ is that the two operands of a compare node have to have the same mode. This means, when we remove the conversion node, we also need to adjust the mode of the second operand. This is not easily possible for a none-Constant node.
+The rule in $\libFIRM$ is that two operands of a compare node have to have the same mode. This means, when we remove the conversion node, we also need to adjust the mode of the second operand. This is not easily possible for a none-Constant node.
 Thus we confine for now that the operand needs to be a Conversion node, and the second one a Constant node. \newline
 With this we can simple adjust its mode, and remove the conversion.
 
@@ -122,13 +122,9 @@ The bitwidth information gathered from the analysis can help here, as it defines
 \input{fig/firm2vhdlexample.tex}
 As an example, the C code from \ref{fig:firm2vhdl-sample} can be compiled with the tool. Without the optimization the 5 created nodes will have the bit numbers from the first column in \ref{fig:firm2vhdl-table}. However, after we applied out bitwidth analysis, we have the bit usages from the last column in \ref{fig:firm2vhdl-table}. 
 
-\section{How about section}
-This section is about decisions that where made, and why they are made.
+\section{Value range vs. bitwidth}
 
-\subsection{Value range vs. bitwidth}
-
-%Where is the actaul difference when looking at the rules.
-The analysis explained in \ref{analysis_explain} is using rules which are based on the bitwidth. The same algorithm could use rules that are working on the range, and not the bitwidth. The later is called value range propagation. The result of both analyses are similar, a master thesis from MIT (\cite{bitwidthanalysis-mit-vrp}) is claims that the value range propagation is more accurate than the bitwidth analysis, and not only because of the rounding up.
+The analysis explained in \ref{analysis_explain} is using rules which are based on the bitwidth. The same algorithm could use rules that are working on the range, and not the bitwidth. The later is called value range propagation. The result of both analyses are similar. However, a master thesis from MIT (\cite{bitwidthanalysis-mit-vrp}) claims that the value range propagation is more accurate than the bitwidth analysis, and not only because of the rounding up.
 
 \input{fig/vrp_loop_examples.tex}
 
@@ -136,8 +132,7 @@ However, the thesis misses one essential fact. In case of a loop like \autoref{f
 
 Another interesting situation is when a Confirm node can be inserted in a loop (See \ref{fig:loop_assertions}). If this is the case, then the bitwidth analysis will return $2^{\lceil log2(bound) \rceil}$ while the VRP would return $log2(bound)$ as the biggest number required by the code. What this shows is, that the VRP here is only more accurate, because the data structure of the bitwidth info operates on bits, while the VRP operates on normal numbers. The runtime here is the same.
 
-\newpage
 \input{fig/arithmetical_chains.tex}
 \label{VRP_king}
-The only configuration where the VRP returns constantly a more accurate result, is when arithmetical operations are not looping, but are rather used as some sort of tree structure, like it is illustrated in \ref{fig:arithmetical_chains}. Here the VRP is more accurate, the runtime is the same.
+The only configuration where the VRP returns constantly a more accurate result, is when arithmetical operations are not looping, but are rather used as some sort of tree structure, like it is illustrated in \ref{fig:arithmetical_chains}. Here the VRP is more accurate, the runtime is the same. However, this drawback can be fixed, and will be covered in a later section.
 

@@ -3,8 +3,8 @@
 For this thesis, libjpeg, libpng and libgif and zlib are evaluated. zlib is often use as a general purpose lossless compression. The other libraries are used for decoding the most used image formats.
 
 For those projects we are measure two things. 
-First we check how much bitwidth is really used, compared to the using the full modes, additionally, we check what impact this has on our assembler generation.
-Second, we are checking if the safed bitwidth does impact the VHDL outputting of \textit{firm2vhdl}, this is done by compiling the generated VHDL files with two different IDEs.
+First we check how much bitwidth is really used, compared to the full modes. Additionally, we check what impact this has on our assembler generation.
+Second, we are checking if the saved bitwidth does impact the VHDL outputting of \textit{firm2vhdl}, this is done by compiling the generated VHDL files with two different FPGA-IDEs.
 
 \section{General bitwidth}
 %How much bitwidth the nodes are having in average per function
@@ -36,7 +36,7 @@ We can say that we save up about 9 bits in average per node.
 \section{Optimizations on assembler output}
 
 In this section we compare the shared object files of the library. The first run was done with plain cparser, the second run was done with cparser + the patches created for this thesis.\newline
-After that the disassemblies of the shared object files are compared. However, comparing those two shared object files is quite hard, due to addresses and instruction order changes. Making the comparing easier was possible after removing the address of every line and removing the arguments of the instructions. Loosing the arguments of the instruction makes it hard to compare if something in the calling of the function has changed. However, we can better study the raw changes on the instructions. What follows is the explanation, how the assembler output changes.
+After that the disassemblies of the shared object files are compared. However, comparing those two shared object files is quite hard, due to changes in addresses and instruction order. Making the comparing easier was possible after removing the address of every line and removing the arguments of the instructions. Loosing the arguments of the instruction makes it hard to compare if something in the calling of the function has changed. However, we can better study the raw changes on the instructions. What follows is the explanation how the assembler output changes.
 
 \paragraph{libgif} There was not a single change, the two binary files are identical.
 \paragraph{libjpeg} The assembler output from after the optimization is about 30 instructions longer. The functions don't differ a lot. It looks most of the times like simple reordering of instructions. The amount of additional instructions is probably caused by loop unrolling.

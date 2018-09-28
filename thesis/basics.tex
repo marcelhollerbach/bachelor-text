@@ -102,16 +102,14 @@ We define $x_i=f(x_{i-1})$ for every $i > 0$. Now we can say: $\exists i \in N :
 %\paragraph{Prove}$f$ is continuous, this means $\forall x >= y: f(x) >= f(y)$. So we know that $f(x) = y$ where $y > x$. Or $f(x) = x$, which means that we found a fixed point. However, the first case can only happen a finite amount of times, since $|D| \not= \infty$. Thus there has to exist a fixed point.
 
 \paragraph{Data flow analysis}
-We can adapt the fixed point iteration to work on a CFG. For the following we define additionally:
+Data flow analysis are the connection of lattices, FIRM graphs, and a fixed point iteration.
+As seen before, a FIRM graph consists of nodes. After our data flow analysis finished we want to have a value from the lattice for each node.
+So for the data flow analysis we need the following:
 \begin{itemize}
-	\item CFG is called $G=(V,E)$
-	\item The lattice we use is called $L$
-	\item $f _{node}:L \rightarrow L$ is the function for iterating on a single node. $f _{node}$ is monotonous.
-	\item $D$ is a set, where we can say that: $\forall d \in D: d = \{(0, v_0), ... , (n, v_n)\}$
-	\item $f(d) := \{(id, \hat{v})| (id, v) \in d \wedge f _{node}(v) = \hat{v}\}$
+	\item A lattice called $L$
+	\item $f _{node}:L \rightarrow L$, which is the $f$ from a fixed point iteration. Each function is unique for each node, and also depends on the operands of the node.
 \end{itemize}
-
-We start the iteration with $d_{bot} := \{(0,\bot), ..., (n, \bot)\}$. At some point, while continuing the iteration, we will find a $\hat{d} = f(\hat{d})$. 
+In the beginning each node of the FIRM graph is associated with the $\bot$ value from the lattice. After that we call $f_{node}$ of each function, the result of $f_{node}$ is then associated again with the particular node. We repeat this last step as long as the results of some $f_{node}$ are changing. At the point where no result changed, we can know that the values that are associated with the nodes are useful and correct. Additional readings for this can be found in \cite{data-flow-theory}.
 
 %\paragraph{Prove}: $|D|$ consists of every possible configuration. There is only a finite amount of elements in the lattice. Thus we can say that $|D|=2^m$. \newline
 %We say $d_1 <= d_2 \equiv \forall (id_2, v_2) \in d_2: \forall (id_1, v_1) \in d_1 : v_2 >= v_1$. $f_{node}$ is continuous. \newline
@@ -120,7 +118,7 @@ We start the iteration with $d_{bot} := \{(0,\bot), ..., (n, \bot)\}$. At some p
 
 \subsection{Worklist algorithm}
 
-A possible solution for implementing fixed point algorithms could be done by iterating the whole CFG everytime a node changes. However, this is quite wasteful, since we know that the state of a node only depends on the state of its operands. Therefore a algorithm called \textit{worklist algorithm} has evolved and can be found in \autoref{worklist}.
+A implementation of a data flow analysis is called worklist algorithm. The base idea of the algorithm is to only calculate those nodes, where a operand changed. This idea is based on the fact, that the state of a node can only change when the state of its operands are changing. A pseudocode implementation can be found in \autoref{worklist}
 
 \begin{algorithm}[H]
 	worklist := {CFG.Nodes}\;
@@ -130,7 +128,7 @@ A possible solution for implementing fixed point algorithms could be done by ite
 		\If{node\_changed}{
 			\ForEach{operand $\in$ node.operands}{
 				\If{!worklist.contains(operand)}{
-					worklist.appi jend(operand)	
+					worklist.append(operand)	
 				}
 			}
 		}
@@ -139,5 +137,6 @@ A possible solution for implementing fixed point algorithms could be done by ite
 	\label{worklist}
 \end{algorithm}
 
-The base idea is to maintain a worklist which contains all nodes that are dirty. A node is considered dirty, when its operands have changed, but the node itself is not recalculated. Additional informations can be found at \cite{iterative-data-flow-analysis-revisited}
+The base idea is to maintain a worklist which contains all nodes that are dirty. A node is considered dirty, when its operands have changed, but the node itself is not yet recalculated. The node is not considered dirty after it was recalculated.
+Additional information can be found at \cite{iterative-data-flow-analysis-revisited}.
 %http://cseweb.ucsd.edu/classes/sp00/cse231/report/node12.html
