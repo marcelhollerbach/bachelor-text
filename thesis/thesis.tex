@@ -35,17 +35,11 @@
 \end{center}
 \vfill
 
-Normal high level programming languages often just present standard data types for 8, 16, 32 and 64 bit numbers. However, the whole bandwidth of those data types is often not used at all. 
+Normal high level programming languages often just present standard data types for 8, 16, 32 and 64 bit numbers. The whole bandwidth of those data types is often not used at all. This thesis implements a analysis for getting a approximately close range for how many bits are actually used. The evaluation of the analysis shows that there is some bitwidth that can be saved. However, the applied optimizations are not resulting in a big, noticeable improvement.
 
-Looking at bigger C projects also shows that often enough C developers are using data types which are a lot bigger than there maximum number. \textit{integer} types are used as a standard complete number type in those projects. Instead of a smaller better fitting number type.
-With the analysis presented in this work, the data types can be better adjusted to a good fitting data word length.
 \vfill
 
-In high-level Programiersprachen wie C gibt es vordefinierte Datentypen wie 8, 16, 32 \& 64 bit Datentypen. Diese werden jedoch often nicht so eingesetzt dass diese möglichst beste Auslastung der möglichen Zahlen erreicht wird.
-
-Im hinblick auf große C Projekte zeigt sich auch das der Datentyp \textit{integer} immer mehr zu einem allgemein gültigen Zahlendatentyp wird, welcher jedoch so gut wie nie das Maximum seiner Zahlen erreicht.
-
-In dieser Ausarbeitung geht es um die Analyse, welche es erlaubt zu erkennen ob ein Datentyp voll ausgenutzt wird oder nicht.
+In high-level Programiersprachen wie C gibt es vordefinierte Datentypen wie 8, 16, 32 \& 64 bit Datentypen. Diese werden jedoch often nicht so eingesetzt dass diese möglichst beste Auslastung der möglichen Zahlen erreicht wird. Die Analyse in dieser Arbeit versucht jeder Variabeln im Programmcode eine möglichst genaue range an zahlen zuzuordnen. Die Evaluation der Analyse zeigt das dies auch gut funktioniert. Die Optimierungen welche auf dieser Analyse aufbauen erzielen jedoch keinen großen performance Vorteil. 
 
 \todo{Das Titelbild ist von
 \url{http://www.flickr.com/photos/x-ray_delta_one/4665389330/}
