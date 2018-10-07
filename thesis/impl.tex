@@ -9,8 +9,8 @@ The whole algorithm is iterative, which means, we might want to address the curr
 
 \paragraph{Bit representation}
 The stable bits indicate how many bits are not used.
-The second value of the tuple indicates if the value will ever reach negative numbers or not, it is only meaningful for modes that allow signs. We note down the stable bits of a node as $stable\_nodes(n)$, same for $is_positive(n)$.
-Sometimes we don't want to have the used bits instead of the stable bits, in this case we note the result as:$used\_bits(n):=mode\_bits(n)-stable\_bits(n)$
+The second value of the tuple indicates if the value will ever reach negative numbers or not, it is only meaningful for modes that allow signs. We note down the stable bits of a node as $stable\_nodes(n)$, same for $is\_positive(n)$.
+Sometimes we don't want to have the used bits instead of the stable bits, in this case we note the result as: $used\_bits(n):=mode\_bits(n)-stable\_bits(n)$
 Where $mode\_bits$ expresses the amount of bits per node.
 
 \paragraph{Range representation}
