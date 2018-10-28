@@ -1,0 +1,42 @@
+\begin{frame}{Conversion-node entfernung (arithmetical)}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{Idee:}
+			\begin{enumerate}
+				\item Verschieben der Conv knoten
+				\item Späteres entfernen durch Conversion-node entfernung
+			\end{enumerate}
+			\textbf{Voraussetzung:}
+			\begin{enumerate}
+				\item Arithmetical node mit Const-node und Conv-node
+				\item Bitbreite von Conv-node muss unverändert sein
+			\end{enumerate}
+		\end{column}
+		\begin{column}{0.5\textwidth}  %%<--- here
+			\input{../thesis/fig/arith_conv.tex}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Conversion-node entfernung (arithmetical)}
+
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{Optimierung:}
+			\begin{enumerate}
+				\item Conv-node nach arithmetical-node
+				\item mode von arithmetical-node \& Const-node anpassen
+			\end{enumerate}
+		\end{column}
+		\begin{column}{0.5\textwidth}  %%<--- here
+			FIXME
+		\end{column}
+	\end{columns}
+\end{frame}
+\begin{frame}{Conversion-node entfernung (arithmetical)}
+Probleme:
+\begin{enumerate}
+	\item Kommt in der Praxis nicht vor
+\end{enumerate}
+\end{frame}
+

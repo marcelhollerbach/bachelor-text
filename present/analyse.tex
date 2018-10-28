@@ -1,0 +1,247 @@
+
+\begin{frame}{Analyse}
+Implementiert mit worklist appraoch.
+\begin{center}
+	\begin{tabular}{ l | c }
+		op & stable bits \\
+		\hline
+		add & $max(min(a_{stable}, b_{stable}) - 1, 0)$ \\
+		minus &  $max(a_{stable} - 1, 0) $ \\
+		sub &  $max(min(a_{stable}, b_{stable}) - 1, 0) $ \\
+		mul &  $max(2*mode - ( b_{stable} + a_{stable} ), 0)  $ \\
+		div &  
+		$ 
+		\left\{
+		\begin{array}{l}
+		a_{stable}\\ 
+		max(a_{stable} - 1, 0)
+		\end{array}
+		\begin{array}{l}
+		, \neg mode\text{ is signed} \\ 
+		, \text{otherwise}.
+		\end{array}
+		\right.$\\
+		mod & 
+		$
+		\lfloor log2(max(a))\rfloor
+		$
+		\\
+	\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Analyse 2}
+\begin{center}
+	$add(const(5), x) \equiv max(min(4, 5) - 1, 0) \equiv 3$
+\newline
+\newline
+\newline
+\begin{tabular}{ c | c c }
+	stable\_bits & min & max \\
+	\hline
+	\hline
+	5 & -4 & +3 \\
+	4 & -8 & +7\\
+	3 & -16 & +15 \\
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Schleifen im Graphen}
+Mit moeglichem Confirm:
+\begin{tikzpicture}
+\node[graph]{
+	\begin{tikzpicture}[remember picture]
+	\node[block] (startblock) {
+		\begin{tikzpicture}
+		\node[firm]    (const0) at (1,2) {Const : 0};
+		\node[phi]     (phi)    at (-1,1) {Phi};
+		\node[firm]    (cmp)        at ( 0,-1) {Cmp less\_equal};
+		\node[control] (cond)       at ( 0,-2) {Cond};
+		\node[control] (false)      at ( 1,-3) {False};
+		\node[control] (true)       at (-1,-3) {True};
+		
+		\draw[dataDependency]    (phi.60)      -- ++(0,0.1) -| (const0);
+		\draw[dataDependency]    (cmp.60)        -- ++(0,0.1) -| (phi.300);
+		\draw[dataDependency]    (cond)        --              (cmp);
+		\draw[controlDependency] (false.north) -- ++(0,0.1) -| (cond.300);
+		\draw[controlDependency] (true.north)  -- ++(0,0.1) -| (cond.240);
+		\end{tikzpicture}
+	};
+	\node[block, anchor=east] (end) at ($(startblock.west) + (-1,0)$) {
+		\begin{tikzpicture}
+		\node[firm]    (const1) at (0,0) {Const : 1};
+		\node[firm]    (add) at (0.5,-1) {Add};
+		\node[control] (ret) at (0,-2) {Jmp};
+		
+		
+		\draw[dataDependency] (add.120) -- ++(0,0.1) -| (const1);
+		\end{tikzpicture}
+	};
+	\begin{scope}									
+		\draw[dataDependency] (add.60) -- ++(0,0.1) -| (phi);
+		\draw[dataDependency]  (phi)-- ++(0,+0.49) -- ++(-4.5,0) -- ++(0,-2.5) -| (add.240);
+	\end{scope}
+	
+	
+\end{tikzpicture}
+};	
+\end{tikzpicture}
+\end{frame}
+
+
+\begin{frame}{Schleifen im Graphen}
+Ohne moegliches Confirm:
+\begin{tikzpicture}
+	\node[graph]{
+		\begin{tikzpicture}[remember picture]
+			\node[block] (startblock) {
+				\begin{tikzpicture}
+				\node[firm]    (const0) at (1,2) {Const : 0};
+				\node[phi]     (phi)    at (-1,1) {Phi};
+				\node[firm]    (conv)    at (0,0) {Conv};
+				\node[firm]    (cmp)        at ( 0,-1) {Cmp less\_equal};
+				\node[control] (cond)       at ( 0,-2) {Cond};
+				\node[control] (false)      at ( 1,-3) {False};
+				\node[control] (true)       at (-1,-3) {True};
+				
+				\draw[dataDependency]    (phi.60)      -- ++(0,0.1) -| (const0);
+				\draw[dataDependency]    (conv.60)        -- ++(0,0.1) -| (phi.300);
+				\draw[dataDependency]    (cmp)     --              (conv);
+				\draw[dataDependency]    (cond)        --              (cmp);
+				\draw[controlDependency] (false.north) -- ++(0,0.1) -| (cond.300);
+				\draw[controlDependency] (true.north)  -- ++(0,0.1) -| (cond.240);
+				\end{tikzpicture}
+			};
+			\node[block, anchor=east] (end) at ($(startblock.west) + (-1,0)$) {
+				\begin{tikzpicture}
+				\node[firm]    (const1) at (0,0) {Const : 1};
+				\node[firm]    (add) at (0.5,-1) {Add};
+				\node[control] (ret) at (0,-2) {Jmp};
+				
+
+				\draw[dataDependency] (add.120) -- ++(0,0.1) -| (const1);
+				\end{tikzpicture}
+			};
+			\begin{scope}									
+				\draw[dataDependency] (add.60) -- ++(0,0.1) -| (phi);
+				\draw[dataDependency]  (phi)-- ++(0,+0.49) -- ++(-4.5,0) -- ++(0,-2.5) -| (add.240);
+			\end{scope}
+
+
+		\end{tikzpicture}
+	};	
+\end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Zusätzliches Confirm Analyse Ergebnisse}
+\begin{columns}
+	\begin{column}{0.5\textwidth}
+		Stable bits von add:
+		\begin{enumerate}
+			\item (32, true)
+			\item (30, true)
+			\item (29, true)
+			\item (28, true) [7,-8]
+			\item \color{red}(27, true) [15,-16] -> \color{darkgray}insert Confirms
+		\end{enumerate}
+	\end{column}
+	\begin{column}{0.5\textwidth}  %%<--- here
+	\begin{tikzpicture}
+		\node[graph]{
+			\begin{tikzpicture}[remember picture]
+				\node[block] (startblock) {
+					\begin{tikzpicture}
+						\node[firm]    (const0) at (0.5,2) {Const : 0};
+						\node[phi]     (phi)    at (-0.4,1) {Phi};
+						\node[firm]    (conv)    at (0,0) {Conv};
+						\node[firm]    (const2)      at (2,0) {Const : 10};
+						\node[firm]    (cmp)        at ( 0,-1) {Cmp less\_equal};
+						\node[control] (cond)       at ( 0,-2) {Cond};
+						\node[control] (false)      at ( 1,-3) {False};
+						\node[control] (true)       at (-1,-3) {True};
+						
+						\draw[dataDependency]    (phi.60)      --  ++(0,0.1) -| (const0);
+						\draw[dataDependency]    (conv.120)        --  ++(0,0.1) -| (phi.300);
+						\draw[dataDependency]    (-2.0,0.34)        --  ++(0,0.0) -| (phi.240);
+						\draw[thick]             (-2.0,1.45)        --  ++(0,0.0) -| (phi.120);
+						\draw[dataDependency]    (cmp)     --              (conv);
+						\draw[dataDependency]    (cmp.60)     --    ++(0,0.1)-| (const2);
+						\draw[dataDependency]    (cond)        --              (cmp);
+						\draw[controlDependency] (false.north) -- ++(0,0.1) -| (cond.300);
+						\draw[controlDependency] (true.north)  -- ++(0,0.1) -| (cond.240);
+					\end{tikzpicture}
+				};
+			\end{tikzpicture}
+		};	
+	\end{tikzpicture}
+	\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{Zusätzliches Confirm Analyse Ergebnisse}
+\begin{columns}
+	\begin{column}{0.5\textwidth}
+		Stable bits von add:
+		\begin{enumerate}
+			\item (32, true)
+			\item (30, true)
+			\item (29, true)
+			\item (28, true) [7,-8]
+			\item \color{red}(27, true) [15,-16] -> \color{darkgray}insert Confirms
+		\end{enumerate}
+	\end{column}
+	\begin{column}{0.5\textwidth}  %%<--- here
+	\begin{tikzpicture}
+		\node[graph]{
+			\begin{tikzpicture}[remember picture]
+			\node[block] (startblock) {
+				\begin{tikzpicture}
+				\node[firm]    (const0) at (0.5,2) {Const : 0};
+				\node[phi]     (phi)    at (-0.4,1) {Phi};
+				\node[firm]    (confirm)    at (0,0) {confirm};
+				\node[firm]    (conv)    at (0,-1) {Conv};
+				\node[firm]    (const2)      at (2,-1) {Const : 10};
+				\node[firm]    (cmp)        at ( 0,-2) {Cmp less\_equal};
+				\node[control] (cond)       at ( 0,-3) {Cond};
+				\node[control] (false)      at ( 1,-4) {False};
+				\node[control] (true)       at (-1,-4) {True};
+				
+				\draw[dataDependency]    (phi.60)      --  ++(0,0.1) -| (const0);
+				\draw[dataDependency]    (conv) -- (confirm);
+				\draw[dataDependency]    (confirm.120)        --  ++(0,0.1) -| (phi.300);
+				\draw[dataDependency]    (-2.0,-0.55)        --  ++(0,0.0) -| (confirm.240);
+				\draw[thick]             (-2.0,1.45)        --  ++(0,0.0) -| (phi.120);
+				\draw[dataDependency]    (cmp)     --              (conv);
+				\draw[dataDependency]    (cmp.60)     --    ++(0,0.1)-| (const2);
+				\draw[dataDependency]    (cond)        --              (cmp);
+				\draw[controlDependency] (false.north) -- ++(0,0.1) -| (cond.300);
+				\draw[controlDependency] (true.north)  -- ++(0,0.1) -| (cond.240);
+				\end{tikzpicture}
+			};
+		\end{tikzpicture}
+		};	
+		\end{tikzpicture}
+	\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Warum sind diese nützlich?}
+\begin{lstlisting}
+unsinged int l = 20;
+
+for (int i = 0; i < l; i++) {
+  data[i] = calculate(i);
+}
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}{Verwendungen der Analyse}
+\begin{enumerate}
+	\item Conversion-node entfernung (if)
+	\item VHDL Generierung
+\end{enumerate}
+\end{frame}
+

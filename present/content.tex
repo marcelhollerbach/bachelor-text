@@ -1,0 +1,119 @@
+
+\begin{frame}[fragile]{Das Ziel}
+\begin{lstlisting}
+int arr[4];
+
+for (int i = 0; i < 4; i++) {
+
+	int x = i*i;      
+	int y = (i << 4); 
+	int res = x + y;  
+	arr[i] = res;
+}
+\end{lstlisting}
+Wie viele bits nutzen \textit{i}, \textit{x}, \textit{y}, \textit{res}? \newline
+\end{frame}
+
+\begin{frame}{Was ist eine Bitbreite}
+\begin{center}
+	\begin{definition}{bitbreite}
+		(stable\_bits, is\_positive)
+	\end{definition}
+\end{center}
+
+\begin{tabular}{ c c | c c c c c c c c | c c }
+	mode & value & \multicolumn{8}{c|}{bit representation} & stable\_bits & is\_positive \\
+	\hline
+	\hline
+	Bs & 5     & \color{red}0 & \color {red}0 & \color{red}0 & \color{red}0 & 0 & 1 & 0 & 1 & 4 & true\\
+	Bs & -2    & \color{red}1 & \color{red}1 & \color{red}1 & \color{red}1 & \color{red}1 & \color{red}1 & 1 & 0 & 6 & false\\
+    Bu & 5     & \color{red}0 & \color{red}0 & \color{red}0 & \color{red}0 & \color{red}0 & 1 & 0 & 1 & 5 & - \\
+\end{tabular}
+
+\end{frame}
+
+%\begin{frame}[fragile]{Das Ziel}
+%\begin{lstlisting}
+%\begin{tabular}{ c c }
+%Variable & Verbrauch \\
+%i & 3 \\
+%x & 6 \\
+%y & 7 \\
+%res & 8 \\
+%\end{tabular}
+%\end{lstlisting}
+%\end{frame}
+
+\begin{frame}{libFIRM}
+\begin{columns}
+	\begin{column}{0.5\textwidth}
+		\begin{enumerate}
+			\item Integer-modes sind genutzt
+			\item Nutzung von Arithmetische/Logische ausdruecke
+			\item Behandlung von Confirm knoten
+		\end{enumerate}
+	\end{column}
+		\begin{column}{0.5\textwidth}  %%<--- here
+			\begin{center}
+				\begin{tikzpicture}
+				\node[graph]{
+					\begin{tikzpicture}[remember picture]
+					\node[block] (startblock) {
+						\begin{tikzpicture}
+						\node[firm]    (const0) at (0,2) {Const : 0};
+						\node[phi]     (phi)    at (-1,1) {Phi};
+						\node[firm]    (const1) at (1,1) {Const : 1};
+						\node[firm]    (add)    at (0,0) {Add};
+						\node[firm]    (cmp)        at ( 0,-1) {Cmp less\_equal};
+						\node[control] (cond)       at ( 0,-2) {Cond};
+						\node[control] (false)      at (-1,-3) {False};
+						\node[control] (true)       at ( 1,-3) {True};
+						
+						\draw[dataDependency]    (add.60)      -- ++(0,0.1) -| (const1);
+						\draw[dataDependency]    (add.120)     -- ++(0,0.1) -| (phi);
+						\draw[dataDependency]    (phi.60)      -- ++(0,0.1) -| (const0);
+						\draw[dataDependency]    (phi.120)     -- ++(0,0.1) -- ++(-1,0) -- ++(0,-2) -| (add.240);
+						\draw[dataDependency]    (cmp.62)     --              (add.300);
+						\draw[dataDependency]    (cond)        --              (cmp);
+						\draw[controlDependency] (false.north) -- ++(0,0.1) -| (cond.240);
+						\draw[controlDependency] (true.north)  -- ++(0,0.1) -| (cond.300);
+						
+						\end{tikzpicture}
+					};
+				\end{tikzpicture}
+			};
+		\end{tikzpicture}
+		\end{center}
+	\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{libFIRM}
+\begin{columns}
+	\begin{column}{0.5\textwidth}
+		Confirm-node
+		\newline
+		\begin{tikzpicture}
+			\node[firm]    (add)    at (-1,1) {Add};
+			\node[firm]    (const0) at (1,1) {Const : 8};
+			\node[firm]    (confirm) at (0,0) {Confirm : <};
+			\draw[dataDependency]    (confirm.60)      -- ++(0,0.1) -| (const0);
+			\draw[dataDependency]    (confirm.120)     -- ++(0,0.1) -| (add);
+			\draw[dataDependency]    (0,-1) -- (confirm);
+		\end{tikzpicture}
+		%FIXME
+	\end{column}
+	\begin{column}{0.5\textwidth}  %%<--- here
+		Convertion-node
+		\newline
+		\begin{tikzpicture}
+		\node[firm]    (add)    at (0,1) {Add : \textit{Bs}};
+		\node[firm]    (conv) at (0,0) {Conv : \textit{Is}};
+		\draw[dataDependency]    (conv) -- (add);
+		\draw[dataDependency]    (0,-1) -- (conv);
+		\end{tikzpicture}
+		%FIXME
+	\end{column}
+\end{columns}
+\end{frame}
+

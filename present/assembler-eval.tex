@@ -1,0 +1,17 @@
+\begin{frame}[fragile]{Evaluierung der Optimierung}
+Verbesserte bitbreite:
+\begin{figure}
+	\centering
+	\pgfplotstabletypeset[col sep=comma, fixed, zerofill, precision=4,
+	columns={Library, mode usage(1), bitwidth usage(1)},
+	columns/Library/.style={column type=l,string type},
+	every head row/.style={after row=\midrule},
+	every last row/.style={after row=\bottomrule}
+	]{../thesis/data.csv}
+\end{figure}
+Erfahrungen:
+\begin{enumerate}
+	\item Loop-unroller verbessert sich
+	\item Geringe Auswirkung auf die assember generierung
+\end{enumerate}
+\end{frame}
