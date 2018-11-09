@@ -2,15 +2,15 @@
 \begin{frame}[fragile]{VHDL Generierung}
 Vorgehen:
 \begin{enumerate}
-	\item C source code compilieren zu ir format
-	\item Compiliere ir format zu VHDL
+	\item C Quellcode kompilieren zu IR Format
+	\item Kompiliere IR Format zu VHDL
 \end{enumerate}
 
-Beispiel code:
+Beispielcode:
 \begin{lstlisting}
 variable node199 : signed(31 downto 0):= (others => '0'); 
 variable node194 : signed(31 downto 0):= (others => '0'); 
-variable node193 : signed(31 downto 0):= (others => '0'); 
+variable node193 : unsigned(31 downto 0):= (others => '0'); 
 [...]
 node199 := node172 xor node198;
 node194 := node199 + node193;
@@ -21,15 +21,15 @@ node193 := unsigned (resize(node194,32));
 \begin{frame}[fragile]{VHDL Generierung}
 Idee:
 \begin{enumerate}
-	\item Nutzung der minimalen variablen breite
-	\item Dadurch verminderte LUT anzahl
+	\item Nutzung der minimalen Variablenbreite
+	\item Dadurch verminderte LUT Anzahl
 \end{enumerate}
 
-Beispiel code:
+Beispielcode:
 \begin{lstlisting}
 variable node199 : signed(9 downto 0):= (others => '0'); 
 variable node194 : signed(16 downto 0):= (others => '0'); 
-variable node193 : signed(31 downto 0):= (others => '0'); 
+variable node193 : unsigned(31 downto 0):= (others => '0'); 
 [...]
 node199 := resize(node172,10) xor resize(node19,10);	
 node194 := resize(node199,17) + resize(node193,17);	
@@ -37,26 +37,33 @@ node193 := resize(unsigned(resize(node194,32)),32);
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}{VHDL Generierung}
+\begin{frame}{VHDL Generierung (Evaluation)}
 
 \textbf{Vorgehen der Evaluation:}
 \begin{enumerate}
-	\item Übersetzen eines C source code zu VHDL ohne Optimierung
-	\item Nochmaliges übersetzen mit Optimierung
+	\item Übersetzen von C Quellcode zu VHDL ohne Optimierung
+	\item Nochmaliges Übersetzen mit Optimierung
 	\item Vergleich der beiden Ergebnisse
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{VHDL Generierung}
+\begin{frame}{VHDL Generierung (Evaluation)}
 \begin{tabular}{c | c | c | c}
-	IDE    & Unoptimiert & Optimiert & Handoptimiert \\
+	IDE    & Unoptimiert & Optimiert & Hand optimiert \\
 	\hline
 	Vivado & 108 & 112 & 109 \\
 	Quartus & 54 & 54 & - \\
 \end{tabular}
-\textbf{Statistik des Testcodes:} \newline
-\begin{tabular}{ c c c }
+\newline
+\newline
+\newline
+\newline
+\newline
+\textbf{Testcode:} 
+\newline
+\begin{tabular}{ c | c | c }
 	& Unoptimiert & Optimiert \\
+	\hline
 	Genutzte Bitbreite & 928 & 609 \\
 \end{tabular}
 \end{frame}

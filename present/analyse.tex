@@ -48,7 +48,8 @@ Implementiert mit worklist appraoch.
 \end{frame}
 
 \begin{frame}{Schleifen im Graphen}
-Mit moeglichem Confirm:
+Mit möglichem Confirm-node:
+\begin{center}
 \begin{tikzpicture}
 \node[graph]{
 	\begin{tikzpicture}[remember picture]
@@ -87,11 +88,13 @@ Mit moeglichem Confirm:
 \end{tikzpicture}
 };	
 \end{tikzpicture}
+\end{center}
 \end{frame}
 
 
 \begin{frame}{Schleifen im Graphen}
-Ohne moegliches Confirm:
+Ohne möglichen Confirm-node:
+\begin{center}
 \begin{tikzpicture}
 	\node[graph]{
 		\begin{tikzpicture}[remember picture]
@@ -132,9 +135,10 @@ Ohne moegliches Confirm:
 		\end{tikzpicture}
 	};	
 \end{tikzpicture}
+\end{center}
 \end{frame}
 
-\begin{frame}{Zusätzliches Confirm Analyse Ergebnisse}
+\begin{frame}{Zusätzliche Confirm-nodes}
 \begin{columns}
 	\begin{column}{0.5\textwidth}
 		Stable bits von add:
@@ -180,7 +184,7 @@ Ohne moegliches Confirm:
 \end{frame}
 
 
-\begin{frame}{Zusätzliches Confirm Analyse Ergebnisse}
+\begin{frame}{Zusätzliche Confirm-nodes}
 \begin{columns}
 	\begin{column}{0.5\textwidth}
 		Stable bits von add:
@@ -227,7 +231,7 @@ Ohne moegliches Confirm:
 \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Warum sind diese nützlich?}
+\begin{frame}[fragile]{Zusätzliche Confirm-nodes (Beispiel)}
 \begin{lstlisting}
 unsinged int l = 20;
 
@@ -240,7 +244,7 @@ for (int i = 0; i < l; i++) {
 
 \begin{frame}{Verwendungen der Analyse}
 \begin{enumerate}
-	\item Conversion-node entfernung (if)
+	\item Conversion-node Entfernung (Cmp)
 	\item VHDL Generierung
 \end{enumerate}
 \end{frame}

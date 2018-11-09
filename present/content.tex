@@ -11,12 +11,12 @@ for (int i = 0; i < 4; i++) {
 	arr[i] = res;
 }
 \end{lstlisting}
-Wie viele bits nutzen \textit{i}, \textit{x}, \textit{y}, \textit{res}? \newline
+Wie viele Bits nutzen \textit{i}, \textit{x}, \textit{y}, \textit{res}? \newline
 \end{frame}
 
-\begin{frame}{Was ist eine Bitbreite}
+\begin{frame}{Was ist eine Bitbreite?}
 \begin{center}
-	\begin{definition}{bitbreite}
+	\begin{definition}{Bitbreite}
 		(stable\_bits, is\_positive)
 	\end{definition}
 \end{center}
@@ -49,8 +49,8 @@ Wie viele bits nutzen \textit{i}, \textit{x}, \textit{y}, \textit{res}? \newline
 	\begin{column}{0.5\textwidth}
 		\begin{enumerate}
 			\item Integer-modes sind genutzt
-			\item Nutzung von Arithmetische/Logische ausdruecke
-			\item Behandlung von Confirm knoten
+			\item Nutzung von arithmetische/logische Ausdrücke
+			\item Behandlung von Confirm-nodes
 		\end{enumerate}
 	\end{column}
 		\begin{column}{0.5\textwidth}  %%<--- here
@@ -89,31 +89,29 @@ Wie viele bits nutzen \textit{i}, \textit{x}, \textit{y}, \textit{res}? \newline
 \end{frame}
 
 \begin{frame}{libFIRM}
-\begin{columns}
-	\begin{column}{0.5\textwidth}
-		Confirm-node
-		\newline
+\begin{center}
+	\begin{tabular}{c | c}
+		\textbf{Confirm-node} &
+		\textbf{Conv-node} 
+		\\
 		\begin{tikzpicture}
-			\node[firm]    (add)    at (-1,1) {Add};
-			\node[firm]    (const0) at (1,1) {Const : 8};
-			\node[firm]    (confirm) at (0,0) {Confirm : <};
-			\draw[dataDependency]    (confirm.60)      -- ++(0,0.1) -| (const0);
-			\draw[dataDependency]    (confirm.120)     -- ++(0,0.1) -| (add);
-			\draw[dataDependency]    (0,-1) -- (confirm);
+		\node[firm]    (add)    at (-1,1) {Add};
+		\node[firm]    (const0) at (1,1) {Const : 8};
+		\node[firm]    (confirm) at (0,0) {Confirm : <};
+		\draw[dataDependency]    (confirm.60)      -- ++(0,0.1) -| (const0);
+		\draw[dataDependency]    (confirm.120)     -- ++(0,0.1) -| (add);
+		\draw[dataDependency]    (0,-1) -- (confirm);
 		\end{tikzpicture}
-		%FIXME
-	\end{column}
-	\begin{column}{0.5\textwidth}  %%<--- here
-		Convertion-node
-		\newline
+		&
 		\begin{tikzpicture}
 		\node[firm]    (add)    at (0,1) {Add : \textit{Bs}};
 		\node[firm]    (conv) at (0,0) {Conv : \textit{Is}};
 		\draw[dataDependency]    (conv) -- (add);
 		\draw[dataDependency]    (0,-1) -- (conv);
 		\end{tikzpicture}
-		%FIXME
-	\end{column}
-\end{columns}
+		\\
+	\end{tabular}	
+\end{center}
+
 \end{frame}
 
